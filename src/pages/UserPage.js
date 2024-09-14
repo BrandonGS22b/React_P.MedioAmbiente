@@ -1,6 +1,6 @@
 // src/pages/UserPage.js
 import React from 'react';
-import UserList from '../components/UserList';
+import UserList from '../componentes/UserList';
 
 const UserPage = () => {
   return (

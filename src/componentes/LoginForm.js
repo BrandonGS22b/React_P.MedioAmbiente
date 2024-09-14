@@ -2,8 +2,8 @@
  * la captura de los datos de autenticación. */
 
 import React, { useState, useContext } from 'react';
-import { login } from '../services/authService';
-import { AuthContext } from '../context/AuthContext';
+import login from '../services/authService';
+import  AuthContext  from '../context/AuthContext';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');

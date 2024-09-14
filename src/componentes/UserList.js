@@ -1,8 +1,8 @@
 /**Este componente solicitará los usuarios protegidos por el token y los mostrará en pantalla. */
 
 import React, { useEffect, useContext, useState } from 'react';
-import { getUsers } from '../services/userService';
-import { AuthContext } from '../context/AuthContext';
+import getUsers from '../services/userService';
+import AuthContext from '../context/AuthContext';
 
 const UserList = () => {
   const { auth } = useContext(AuthContext);
