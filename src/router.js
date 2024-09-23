@@ -12,7 +12,7 @@ const PrivateRoute = ({ children }) => {
 
 const AppRouter = () => (
   <Routes>
-    <Route path="/login" element={<LoginPage />} />
+    <Route path="/" element={<LoginPage />} />
     <Route
       path="/users"
       element={
