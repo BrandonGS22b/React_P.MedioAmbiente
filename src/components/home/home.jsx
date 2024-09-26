@@ -24,7 +24,7 @@ function Home() {
     const userName = localStorage.getItem('name');
     console.log(`Hola ${userName}!`); // Muestra el nombre del usuario en la consola
     
-    
+    console.log('hola el usaurio es'+user.name); //
 
     // Intervalo para actualizar el contador
     const interval = setInterval(() => {

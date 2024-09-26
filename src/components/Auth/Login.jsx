@@ -22,7 +22,14 @@ const LoginForm = () => {
 
       if (response && response.token) {
         console.log('Login successful');
-        login({ name: response.name, email }); // Actualiza el estado del usuario en el contexto
+        
+        // Actualiza el estado del usuario en el contexto, asegurando que se incluya el nombre y el email
+        login({ name: response.user.name, email: response.user.email }); // Cambiado para obtener el nombre correctamente
+        
+        // También puedes almacenar el nombre en localStorage si lo deseas
+        localStorage.setItem('name', response.user.name);
+        localStorage.setItem('user', JSON.stringify(response.user)); // Almacena el objeto usuario completo
+
         navigate('/home'); // Navega a la página de inicio
       } else {
         setError('Error logging in');
