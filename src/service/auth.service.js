@@ -1,29 +1,37 @@
-// src/services/auth.service.js
+// src/service/auth.service.js
 import axios from 'axios';
-import Cookies from 'js-cookie';
 
-const API_URL = 'http://localhost:3000/api/auth/'; // Cambia esto a tu URL de API
+// URL base de tu backend
+const API_URL = 'https://loginexpress-ts-jwt.onrender.com/api/auth'; // Asegúrate de que la URL sea correcta
 
 const login = async (email, password) => {
-  const response = await axios.post(`${API_URL}login`, { email, password });
-  if (response.data.token) {
-    // Guardar el token en la cookie
-    Cookies.set('token', response.data.token, { expires: 7 }); // Expira en 7 días
+  try {
+    const response = await axios.post(`${API_URL}/login`, { email, password }, { withCredentials: true });
+    if (response.data.token) {
+      localStorage.setItem('user', JSON.stringify(response.data)); // Guarda el token y otros datos del usuario
+      
+      localStorage.setItem('name', response.data.name); // Guarda el token en localStorage
+      localStorage.setItem('expiresIn', response.data.expiresIn); // Guarda el tiempo de expiración
+    }
+    return response.data;
+  } catch (error) {
+    throw error; // Vuelve a lanzar el error para que pueda ser manejado en el componente
   }
-  return response.data;
 };
 
 const logout = () => {
-  // Eliminar la cookie del token
-  Cookies.remove('token');
+  localStorage.removeItem('user');
+  return axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
 };
 
 const getCurrentUser = () => {
-  return Cookies.get('token') || null;
+  return JSON.parse(localStorage.getItem('user'));
 };
 
-export default {
+const authService = {
   login,
   logout,
   getCurrentUser,
 };
+
+export default authService;

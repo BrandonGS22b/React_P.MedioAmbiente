@@ -1,39 +1,52 @@
-// src/components/Auth/Login.jsx
-import React, { useContext, useState } from 'react';
-import { AuthContext } from '../../context/AuthContext';
+// src/components/LoginForm.jsx
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import authService from '../../service/auth.service'; // Asegúrate de importar el authService
+import  useAuth  from '../../context/useAuth'; // Importa el contexto de autenticación
 
-const Login = () => {
-  const { login } = useContext(AuthContext);
+const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { login } = useAuth(); // Usa el contexto de autenticación
+  
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    console.log('Login attempt:', { email, password });
+
     try {
-      await login(email, password);
+      const response = await authService.login(email, password); // Utiliza el servicio para iniciar sesión
+      console.log('Response:', response);
+
+      if (response && response.token) {
+        console.log('Login successful');
+        login({ name: response.name, email }); // Actualiza el estado del usuario en el contexto
+        navigate('/home'); // Navega a la página de inicio
+      } else {
+        setError('Error logging in');
+      }
     } catch (err) {
-      setError('Login failed. Please check your credentials.');
+      console.error('Login error:', err);
+      setError('Error logging in');
     }
   };
-
+  
   return (
     <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleLogin}>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          required
         />
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
-          required
         />
         <button type="submit">Login</button>
         {error && <p>{error}</p>}
@@ -42,4 +55,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginForm;

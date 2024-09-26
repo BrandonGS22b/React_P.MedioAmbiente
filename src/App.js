@@ -1,7 +1,7 @@
 // src/App.js
 import React from 'react';
 import { AuthProvider } from './context/AuthContext';
-import Router from './Router'; // Asegúrate de que tu enrutador esté configurado
+import Router from './router'; // Asegúrate de que tu enrutador esté configurado
 
 const App = () => {
   return (

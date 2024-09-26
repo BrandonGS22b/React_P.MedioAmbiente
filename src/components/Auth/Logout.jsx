@@ -1,15 +1,17 @@
-// src/components/Auth/Logout.jsx
-import React, { useContext } from 'react';
-import { AuthContext } from '../../context/AuthContext';
+// LogoutButton.js
+import axiosInstance from '../../service/axiosInstance';
 
-const Logout = () => {
-  const { logout } = useContext(AuthContext);
-
-  const handleLogout = () => {
-    logout();
+const LogoutButton = () => {
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post('/logout');
+      console.log('Logout successful');
+    } catch (err) {
+      console.error('Error logging out', err);
+    }
   };
 
   return <button onClick={handleLogout}>Logout</button>;
 };
 
-export default Logout;
+export default LogoutButton;
