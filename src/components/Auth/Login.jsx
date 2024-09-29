@@ -30,7 +30,7 @@ const LoginForm = () => {
         localStorage.setItem('name', response.user.name);
         localStorage.setItem('user', JSON.stringify(response.user)); // Almacena el objeto usuario completo
 
-        navigate('/home'); // Navega a la página de inicio
+        navigate('/dashboard'); // Navega a la página de inicio
       } else {
         setError('Error logging in');
       }

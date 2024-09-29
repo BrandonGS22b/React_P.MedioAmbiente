@@ -12,11 +12,14 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser)); // Recuperar el usuario almacenado si existe
+      const parsedUser = JSON.parse(storedUser);
+      console.log("Usuario recuperado de localStorage:", parsedUser); // Verificar lo que se recupera
+      setUser(parsedUser); // Recuperar el usuario almacenado si existe
     }
   }, []);
 
   const login = (userData) => {
+    console.log("Usuario autenticado:", userData); // Verificar el contenido del usuario
     setUser(userData); // Actualizar el estado del usuario
     localStorage.setItem('user', JSON.stringify(userData)); // Guardar el usuario en localStorage
   };
