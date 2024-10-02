@@ -14,21 +14,23 @@ const LoginForm = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('Login attempt:', { email, password });
+    
 
     try {
       const response = await authService.login(email, password); // Utiliza el servicio para iniciar sesión
-      console.log('Response:', response);
 
       if (response && response.token) {
         console.log('Login successful');
         
-        // Actualiza el estado del usuario en el contexto, asegurando que se incluya el nombre y el email
-        login({ name: response.user.name, email: response.user.email }); // Cambiado para obtener el nombre correctamente
+        // Actualiza el estado del usuario en el contexto, asegurando que se incluya el nombre y el email y role
+
+        //aqui es donde mando los datos al dashboard
+        login({ name: response.user.name, email: response.user.email,role: response.user.role }); // Cambiado para obtener el nombre correctamente
         
         // También puedes almacenar el nombre en localStorage si lo deseas
         localStorage.setItem('name', response.user.name);
         localStorage.setItem('user', JSON.stringify(response.user)); // Almacena el objeto usuario completo
+
 
         navigate('/dashboard'); // Navega a la página de inicio
       } else {

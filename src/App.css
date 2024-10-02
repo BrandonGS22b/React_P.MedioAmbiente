@@ -1,33 +1,50 @@
-/* Estilos personalizados para el layout */
-#wrapper {
-  display: flex;
-  min-height: 100vh;
-}
-
-#sidebar-wrapper {
-  min-width: 250px;
-}
-
-.sidebar-heading {
-  padding: 1rem;
-  font-size: 1.5rem;
-  text-align: center;
+/* Estilos generales */
+body {
+  font-family: Arial, sans-serif;
   background-color: #f8f9fa;
-}
-
-.list-group-item-action {
-  padding: 1rem;
-  font-size: 1.2rem;
-}
-
-#page-content-wrapper {
-  flex-grow: 1;
-  padding: 20px;
+  margin: 0;
+  padding: 0;
 }
 
 /* Navbar */
 .navbar {
-  margin-bottom: 20px;
+  background-color: #343a40;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  color: white;
+}
+
+.navbar-nav .nav-link {
+  color: white;
+}
+
+/* Sidebar */
+#sidebar-wrapper {
+  width: 250px;
+}
+
+.sidebar-heading {
+  font-size: 1.25rem;
+  padding: 1rem;
+  text-align: center;
+  background-color: #343a40;
+  color: white;
+}
+
+.list-group-item {
+  border: none;
+  padding: 15px;
+}
+
+.list-group-item:hover {
+  background-color: #f1f1f1;
+}
+
+/* Página de contenido */
+#page-content-wrapper {
+  padding: 20px;
 }
 
 .btn-outline-light {
@@ -36,7 +53,57 @@
 }
 
 .btn-outline-light:hover {
-  color: black;
   background-color: white;
-  border-color: white;
+  color: #343a40;
 }
+
+.text-muted {
+  margin-top: 10px;
+}
+
+/* Responsivo para el dahsboard*/
+
+/* Asegura que el cuerpo de la página ocupe toda la altura de la ventana */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+/* Ajustes para el wrapper para ocupar todo el alto de la página */
+#wrapper {
+  display: flex;
+  height: 100vh;
+}
+
+/* La barra lateral fija */
+#sidebar-wrapper {
+  width: 250px;
+  height: 100%;
+  position: fixed;
+  top: 56px; /* Esto compensa la altura de la barra superior */
+  left: 0;
+  overflow-y: auto; /* Permite que el menú lateral haga scroll si es necesario */
+}
+
+/* El contenido debe tener scroll y estar alineado con la barra lateral */
+#page-content-wrapper {
+  margin-left: 250px; /* Espaciado para la barra lateral */
+  padding: 20px;
+  height: calc(100vh - 56px); /* Altura del contenido menos la barra superior */
+  overflow-y: auto; /* El contenido tendrá su propio scroll */
+}
+
+/* Ajustes para la barra superior */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1; /* Asegura que esté por encima de otros elementos */
+}
+
+/* Asegura que los botones ocupen todo el ancho en la barra lateral */
+.btn {
+  width: 100%;
+  text-align: left;
+}
+
