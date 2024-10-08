@@ -1,97 +1,115 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "../../context/useAuth";
+import authService from "../../service/auth.service";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import '../../App.css'; // Importa el archivo CSS
 
 function Usuarios() {
   const { user } = useAuth();
   const [usuarios, setUsuarios] = useState([]);
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("usuario"); // Valor predeterminado de la lista desplegable
   const [editando, setEditando] = useState(false);
   const [usuarioId, setUsuarioId] = useState(null);
+  const [error, setError] = useState("");
+
+  // Obtener usuarios del backend
+  useEffect(() => {
+    const fetchUsuarios = async () => {
+      try {
+        const { users } = await authService.getUsuarios();
+        console.log("Usuarios obtenidos:", users);
+        setUsuarios(Array.isArray(users) ? users : []);
+      } catch (error) {
+        console.error('Error obteniendo usuarios:', error);
+      }
+    };
+
+    if (user) {
+      fetchUsuarios();
+    }
+  }, [user]);
+
+  const handleAgregarOActualizarUsuario = async () => {
+    // Validar campos requeridos
+    if (!nombre || !email || (!editando && !password) || !role) {
+        setError("Todos los campos son obligatorios, excepto la contraseña al editar");
+        return;
+    }
+
+    const emailRegex = /\S+@\S+\.\S+/;
+    if (!emailRegex.test(email)) {
+        setError("El email no es válido");
+        return;
+    }
+
+    setError(""); // Limpiar errores previos
+
+    const dataToUpdate = { name: nombre, email, role }; // Preparar datos a enviar
+
+    if (editando) {
+        // Editar usuario
+        if (password) {
+            dataToUpdate.password = password; // Solo incluir la contraseña si se ha cambiado
+        }
+        
+        try {
+            const updatedUser = await authService.updateUsuario(usuarioId, dataToUpdate);
+            setUsuarios(usuarios.map(usuario => 
+                usuario.id === usuarioId ? { ...usuario, ...dataToUpdate } : usuario
+            ));
+            setEditando(false);
+            setUsuarioId(null);
+        } catch (error) {
+            console.error('Error actualizando usuario:', error.response?.data || error.message);
+            setError("Error actualizando usuario. Revisa los datos e inténtalo de nuevo.");
+        }
+    } else {
+        // Agregar nuevo usuario
+        try {
+            const nuevoUsuario = await authService.createUsuario(dataToUpdate);
+            setUsuarios([...usuarios, { ...nuevoUsuario, role }]);
+        } catch (error) {
+            console.error('Error agregando usuario:', error.response?.data || error.message);
+        }
+    }
+
+    // Limpiar los campos del formulario
+    setNombre("");
+    setEmail("");
+    setPassword("");
+    setRole("usuario"); // Restablecer el rol al valor predeterminado
+};
+
+  const handleEditarUsuario = (usuario) => {
+    setNombre(usuario.name); // Asegurarse de usar 'name' aquí también
+    setEmail(usuario.email);
+    setRole(usuario.role);
+    setUsuarioId(usuario.id);
+    setEditando(true);
+  };
+
+  const handleEliminarUsuario = async (id) => {
+    try {
+      await authService.deleteUsuario(id);
+      setUsuarios(usuarios.filter((usuario) => usuario.id !== id));
+    } catch (error) {
+      console.error('Error eliminando usuario:', error);
+    }
+  };
 
   if (!user) {
     return <p>No tienes acceso a esta sección. Por favor, inicia sesión.</p>;
   }
 
-  // Simulando una llamada a la API para obtener usuarios
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    const fetchUsuarios = async () => {
-      // Reemplaza esto con tu llamada real a la API
-      const usuariosObtenidos = [
-        { id: 1, nombre: "Usuario 1", email: "usuario1@example.com" },
-        { id: 2, nombre: "Usuario 2", email: "usuario2@example.com" },
-        { id: 1, nombre: "Usuario 1", email: "usuario1@example.com" },
-        { id: 2, nombre: "Usuario 2", email: "usuario2@example.com" },
-        { id: 1, nombre: "Usuario 1", email: "usuario1@example.com" },
-        { id: 2, nombre: "Usuario 2", email: "usuario2@example.com" },
-        { id: 1, nombre: "Usuario 1", email: "usuario1@example.com" },
-        { id: 2, nombre: "Usuario 2", email: "usuario2@example.com" },
-        { id: 1, nombre: "Usuario 1", email: "usuario1@example.com" },
-        { id: 2, nombre: "Usuario 2", email: "usuario2@example.com" },
-        { id: 1, nombre: "Usuario 1", email: "usuario1@example.com" },
-        { id: 2, nombre: "Usuario 2", email: "usuario2@example.com" },
-        { id: 1, nombre: "Usuario 1", email: "usuario1@example.com" },
-        { id: 2, nombre: "Usuario 2", email: "usuario2@example.com" },
-        { id: 1, nombre: "Usuario 1", email: "usuario1@example.com" },
-        { id: 2, nombre: "Usuario 2", email: "usuario2@example.com" },
-        { id: 1, nombre: "Usuario 1", email: "usuario1@example.com" },
-        { id: 2, nombre: "Usuario 2", email: "usuario2@example.com" },
-        { id: 1, nombre: "Usuario 1", email: "usuario1@example.com" },
-        { id: 2, nombre: "Usuario 2", email: "usuario2@example.com" },
-        { id: 1, nombre: "Usuario 1", email: "usuario1@example.com" },
-        { id: 2, nombre: "Usuario 2", email: "usuario2@example.com" },
-        { id: 1, nombre: "Usuario 1", email: "usuario1@example.com" },
-        { id: 2, nombre: "Usuario 2", email: "usuario2@example.com" },
-        { id: 1, nombre: "Usuario 1", email: "usuario1@example.com" },
-        { id: 2, nombre: "Usuario 2", email: "usuario2@example.com" },
-        { id: 1, nombre: "Usuario 1", email: "usuario1@example.com" },
-        { id: 2, nombre: "Usuario 2", email: "usuario2@example.com" },
-        
-      ];
-      setUsuarios(usuariosObtenidos);
-    };
-
-    fetchUsuarios();
-  }, []);
-
-  const handleAgregarUsuario = () => {
-    if (editando) {
-      // Editar usuario
-      setUsuarios(usuarios.map((usuario) =>
-        usuario.id === usuarioId ? { id: usuarioId, nombre, email } : usuario
-      ));
-      setEditando(false);
-      setUsuarioId(null);
-    } else {
-      // Agregar nuevo usuario
-      const nuevoUsuario = {
-        id: Date.now(), // Generar un ID único temporalmente
-        nombre,
-        email,
-      };
-      setUsuarios([...usuarios, nuevoUsuario]);
-    }
-    setNombre("");
-    setEmail("");
-  };
-
-  const handleEditarUsuario = (usuario) => {
-    setNombre(usuario.nombre);
-    setEmail(usuario.email);
-    setUsuarioId(usuario.id);
-    setEditando(true);
-  };
-
-  const handleEliminarUsuario = (id) => {
-    setUsuarios(usuarios.filter((usuario) => usuario.id !== id));
-  };
-
   return (
-    <div>
+    <div className="usuarios-container">
       <h1>Gestión de Usuarios</h1>
 
-      <div>
+      <div className="form-container">
         <input
           type="text"
           placeholder="Nombre"
@@ -104,32 +122,60 @@ function Usuarios() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <button onClick={handleAgregarUsuario}>
+        <input
+          type="password"
+          placeholder={editando ? "Nueva Contraseña (Opcional)" : "Contraseña"}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        {/* Lista desplegable para seleccionar el rol */}
+        <select value={role} onChange={(e) => setRole(e.target.value)}>
+          <option value="usuario">Usuario</option>
+          <option value="admin">Admin</option>
+          <option value="tecnico">Técnico</option>
+        </select>
+
+        <button onClick={handleAgregarOActualizarUsuario}>
           {editando ? "Actualizar Usuario" : "Agregar Usuario"}
         </button>
       </div>
 
-      <table>
+      {error && <p className="error-message">{error}</p>} {/* Mostrar error */}
+
+      <table className="usuarios-table">
         <thead>
           <tr>
             <th>ID</th>
             <th>Nombre</th>
             <th>Email</th>
+            <th>Rol</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {usuarios.map((usuario) => (
-            <tr key={usuario.id}>
-              <td>{usuario.id}</td>
-              <td>{usuario.nombre}</td>
-              <td>{usuario.email}</td>
-              <td>
-                <button onClick={() => handleEditarUsuario(usuario)}>Editar</button>
-                <button onClick={() => handleEliminarUsuario(usuario.id)}>Eliminar</button>
-              </td>
+          {usuarios.length > 0 ? (
+            usuarios.map((usuario) => (
+              <tr key={usuario.id}>
+                <td>{usuario.id}</td>
+                <td>{usuario.name}</td>
+                <td>{usuario.email}</td>
+                <td>{usuario.role}</td>
+                <td>
+                  <button onClick={() => handleEditarUsuario(usuario)} className="edit-button">
+                    <FontAwesomeIcon icon={faEdit} /> Editar
+                  </button>
+                  <button onClick={() => handleEliminarUsuario(usuario.id)} className="delete-button">
+                    <FontAwesomeIcon icon={faTrash} /> Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="5">No hay usuarios disponibles.</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>

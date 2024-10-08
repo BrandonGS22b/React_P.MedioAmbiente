@@ -25,7 +25,7 @@ const LoginForm = () => {
         // Actualiza el estado del usuario en el contexto, asegurando que se incluya el nombre y el email y role
 
         //aqui es donde mando los datos al dashboard
-        login({ name: response.user.name, email: response.user.email,role: response.user.role }); // Cambiado para obtener el nombre correctamente
+        login({ name: response.user.name, email: response.user.email, role: response.user.role });
         
         // También puedes almacenar el nombre en localStorage si lo deseas
         localStorage.setItem('name', response.user.name);

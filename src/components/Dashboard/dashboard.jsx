@@ -78,11 +78,23 @@ function Dashboard() {
                 <FontAwesomeIcon icon={faUser} /> Usuarios
               </button>
             </li>
+
+
+
             <li className="list-group-item">
               <button onClick={() => handleContentChange(<p>Contenido de Reportes</p>)} className="btn btn-light w-100">
-                <FontAwesomeIcon icon={faFileAlt} /> Reportes
+                <FontAwesomeIcon icon={faFileAlt} /> Gestion Solicitudes
               </button>
             </li>
+
+
+            <li className="list-group-item">
+              <button onClick={() => handleContentChange(<p>Contenido de Reportes</p>)} className="btn btn-light w-100">
+                <FontAwesomeIcon icon={faFileAlt} /> Historial de mantenimiento
+              </button>
+            </li>
+
+
             <li className="list-group-item">
               <button onClick={handleLogout} className="btn btn-danger w-100">
                 <FontAwesomeIcon icon={faSignOutAlt} /> Cerrar sesión
