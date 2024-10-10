@@ -4,6 +4,7 @@ import useAuth from "../../context/useAuth";
 import "../../App.css";
 import Home from "../home/home";
 import Usuarios from "../Auth/Usuarios";
+import GestionSolicitud from "../GestionSolicitud/GestionSolicitud";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faUser, faFileAlt, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
@@ -82,7 +83,7 @@ function Dashboard() {
 
 
             <li className="list-group-item">
-              <button onClick={() => handleContentChange(<p>Contenido de Reportes</p>)} className="btn btn-light w-100">
+              <button onClick={() => handleContentChange(<GestionSolicitud />)} className="btn btn-light w-100">
                 <FontAwesomeIcon icon={faFileAlt} /> Gestion Solicitudes
               </button>
             </li>
