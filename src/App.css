@@ -9,6 +9,10 @@ body {
 /* Navbar */
 .navbar {
   background-color: #343a40;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1; /* Asegura que esté por encima de otros elementos */
 }
 
 .navbar-brand {
@@ -23,6 +27,11 @@ body {
 /* Sidebar */
 #sidebar-wrapper {
   width: 250px;
+  height: 100%;
+  position: fixed;
+  top: 56px; /* Esto compensa la altura de la barra superior */
+  left: 0;
+  overflow-y: auto; /* Permite que el menú lateral haga scroll si es necesario */
 }
 
 .sidebar-heading {
@@ -44,7 +53,10 @@ body {
 
 /* Página de contenido */
 #page-content-wrapper {
+  margin-left: 250px; /* Espaciado para la barra lateral */
   padding: 20px;
+  height: calc(100vh - 56px); /* Altura del contenido menos la barra superior */
+  overflow-y: auto; /* El contenido tendrá su propio scroll */
 }
 
 .btn-outline-light {
@@ -61,54 +73,74 @@ body {
   margin-top: 10px;
 }
 
-/* Responsivo para el dahsboard*/
-
-/* Asegura que el cuerpo de la página ocupe toda la altura de la ventana */
-html, body {
-  height: 100%;
-  margin: 0;
-}
-
 /* Ajustes para el wrapper para ocupar todo el alto de la página */
 #wrapper {
   display: flex;
   height: 100vh;
 }
 
-/* La barra lateral fija */
-#sidebar-wrapper {
-  width: 250px;
-  height: 100%;
-  position: fixed;
-  top: 56px; /* Esto compensa la altura de la barra superior */
-  left: 0;
-  overflow-y: auto; /* Permite que el menú lateral haga scroll si es necesario */
+/* Responsivo para el dashboard */
+
+/* Media Queries para pantallas medianas (tabletas) */
+@media (max-width: 768px) {
+  /* Ajuste para el sidebar en pantallas medianas */
+  #sidebar-wrapper {
+    width: 100%;
+    height: auto;
+    position: relative;
+    top: 0;
+    margin-bottom: 20px;
+  }
+
+  /* Ajuste para el contenido principal en pantallas medianas */
+  #page-content-wrapper {
+    margin-left: 0;
+    padding: 15px;
+  }
+
+  /* Ajustar botones y textos */
+  .btn {
+    font-size: 14px;
+  }
+
+  .navbar-brand {
+    font-size: 1.25rem;
+  }
 }
 
-/* El contenido debe tener scroll y estar alineado con la barra lateral */
-#page-content-wrapper {
-  margin-left: 250px; /* Espaciado para la barra lateral */
-  padding: 20px;
-  height: calc(100vh - 56px); /* Altura del contenido menos la barra superior */
-  overflow-y: auto; /* El contenido tendrá su propio scroll */
+/* Media Queries para pantallas pequeñas (móviles) */
+@media (max-width: 576px) {
+  /* Ocultar el sidebar en pantallas pequeñas */
+  #sidebar-wrapper {
+    display: none;
+  }
+
+  /* Ajustar el contenido principal en pantallas pequeñas */
+  #page-content-wrapper {
+    margin-left: 0;
+    padding: 10px;
+  }
+
+  /* Ajustar fuentes y márgenes */
+  h1, h2 {
+    font-size: 1.2rem;
+  }
+
+  .btn {
+    font-size: 12px;
+    padding: 10px;
+  }
+
+  .navbar {
+    padding: 10px;
+  }
+
+  .text-muted {
+    font-size: 12px;
+  }
 }
 
-/* Ajustes para la barra superior */
-.navbar {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1; /* Asegura que esté por encima de otros elementos */
-}
-
-/* Asegura que los botones ocupen todo el ancho en la barra lateral */
-.btn {
-  width: 100%;
-  text-align: left;
-}
-
-
-/* diseño de usuarios.jsx */
+/* Diseño de usuarios.jsx */
 .usuarios-table {
   width: 100%;
   border-collapse: collapse;
@@ -143,9 +175,7 @@ input[type="text"], input[type="email"] {
   padding: 5px;
 }
 
-
-/* diseño de detalle-usuario.jsx */
-
+/* Diseño de detalle-usuario.jsx */
 .usuarios-container {
   max-width: 800px;
   margin: auto;
@@ -228,8 +258,8 @@ button:hover {
   text-decoration: underline;
 }
 
-
-/* componente Gestion de solicitudes*/
+/* Componente Gestión de Solicitudes */
+/* Estilos generales para el componente Gestión de Solicitudes */
 .gestion-solicitud {
   font-family: Arial, sans-serif;
   max-width: 800px;
@@ -240,36 +270,43 @@ button:hover {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Formulario de solicitud */
 .solicitud-form {
   display: flex;
-  flex-direction: column;
-  margin-bottom: 20px;
+  flex-wrap: wrap; /* Permite que los elementos se ajusten en múltiples líneas */
+  gap: 10px; /* Espacio entre los campos */
 }
 
 .solicitud-form input,
-.solicitud-form select,
+.solicitud-form select {
+  flex: 1 1 200px; /* Flex para permitir un tamaño mínimo */
+  padding: 10px;
+  margin: 5px 0;
+}
+
 .solicitud-form button {
   margin: 5px 0;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  width: 100%;
 }
 
+/* Tabla de solicitudes */
 .solicitudes-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.solicitudes-table th,
+.solicitudes-table th {
+  background-color: #007bff;
+  color: white;
+}
+
 .solicitudes-table td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
-}
-
-.solicitudes-table th {
-  background-color: #007bff;
-  color: white;
 }
 
 .solicitudes-table tr:nth-child(even) {
@@ -293,39 +330,67 @@ button:hover {
   background-color: #c82333;
 }
 
-
-
-
-/* componente Gestion de solicitudes para ver imagen*/
+/* Modal para ver imagen */
 .modal {
   display: flex;
+  justify-content: center;
+  align-items: center;
   position: fixed;
   z-index: 1000;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
-  overflow: auto;
-  background-color: rgb(0, 0, 0);
-  background-color: rgba(0, 0, 0, 0.9);
-  justify-content: center;
-  align-items: center;
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 .modal-content {
   position: relative;
-  margin: auto;
-  padding: 0;
-  width: 80%;
-  max-width: 700px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: auto;
+}
+
+.modal-content img {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .close {
   position: absolute;
-  top: 15px;
-  right: 25px;
-  color: white;
-  font-size: 35px;
+  top: 10px;
+  right: 20px;
+  font-size: 30px;
   font-weight: bold;
+  color: #333;
   cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: red;
+}
+
+/* Responsividad para pantallas pequeñas */
+@media (max-width: 768px) {
+  .gestion-solicitud {
+    padding: 10px;
+    max-width: 100%;
+  }
+
+  .solicitudes-table th,
+  .solicitudes-table td {
+    padding: 6px;
+  }
+
+  .solicitud-form input,
+  .solicitud-form select,
+  .solicitud-form button {
+    flex: 1 1 100%; /* Toma el 100% en móviles */
+  }
 }

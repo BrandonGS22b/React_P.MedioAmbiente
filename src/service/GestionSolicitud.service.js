@@ -5,7 +5,7 @@ const API_URL = 'https://loginexpress-ts-jwt.onrender.com/api/solicitud';  // Ca
 const SolicitudService = {
   // Obtener todas las solicitudes
   obtenerSolicitudes: () => {
-    return axios.get(`${API_URL}/get`);
+    return axios.get(`${API_URL}/getall`);
   },
 
   // Crear una nueva solicitud
@@ -15,17 +15,17 @@ const SolicitudService = {
 
   // Eliminar una solicitud por ID
   eliminarSolicitud: (id) => {
-    return axios.delete(`${API_URL}/solicitudes/${id}`);
+    return axios.delete(`${API_URL}/delete/${id}`);
   },
 
   // Obtener una solicitud por ID (si necesitas esta funcionalidad)
   obtenerSolicitudPorId: (id) => {
-    return axios.get(`${API_URL}/solicitudes/${id}`);
+    return axios.get(`${API_URL}/get/${id}`);
   },
 
   // Actualizar una solicitud (si necesitas esta funcionalidad)
   actualizarSolicitud: (id, updatedData) => {
-    return axios.put(`${API_URL}/solicitudes/${id}`, updatedData);
+    return axios.put(`${API_URL}/update/${id}`, updatedData);
   },
 };
 

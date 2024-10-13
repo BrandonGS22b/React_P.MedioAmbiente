@@ -5,6 +5,9 @@ import "../../App.css";
 import Home from "../home/home";
 import Usuarios from "../Auth/Usuarios";
 import GestionSolicitud from "../GestionSolicitud/GestionSolicitud";
+import GestionMantenimiento from "../GestionMantenimiento/HistorialMantenimiento";
+import HistorialSolicitud from "../HistorialSolicitud/HistorialSolicitud";
+import GestionTecnico from "../GestionTecnico/GestionTecnico";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faUser, faFileAlt, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
@@ -90,8 +93,20 @@ function Dashboard() {
 
 
             <li className="list-group-item">
-              <button onClick={() => handleContentChange(<p>Contenido de Reportes</p>)} className="btn btn-light w-100">
-                <FontAwesomeIcon icon={faFileAlt} /> Historial de mantenimiento
+              <button onClick={() => handleContentChange(<GestionMantenimiento/>)} className="btn btn-light w-100">
+                <FontAwesomeIcon icon={faFileAlt} />    Gestion de mantenimiento
+              </button>
+            </li>
+
+            <li className="list-group-item">
+              <button onClick={() => handleContentChange(<HistorialSolicitud/>)} className="btn btn-light w-100">
+                <FontAwesomeIcon icon={faFileAlt} />    Historial de Solicitudes
+              </button>
+            </li>
+
+            <li className="list-group-item">
+              <button onClick={() => handleContentChange(<GestionTecnico/>)} className="btn btn-light w-100">
+                <FontAwesomeIcon icon={faFileAlt} />    Gestion Tecnicos
               </button>
             </li>
 

@@ -60,6 +60,13 @@ const getUsuarios = async () => {
   }
 };
 
+//obtener usuario por id 
+const UserService = async (id) => {
+  const response = await axios.get(`${API_URL}/users/${id}`);
+  return response;
+};
+
+
 // Función para crear un usuario con role incluido
 const createUsuario = async ({ name, email, password, role }) => {
   const token = localStorage.getItem('token');
@@ -146,6 +153,7 @@ const authService = {
   createUsuario,
   updateUsuario,
   deleteUsuario,
+  UserService
 };
 
 export default authService;
