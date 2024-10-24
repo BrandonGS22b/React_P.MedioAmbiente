@@ -8,20 +8,17 @@ const login = async (email, password) => {
   try {
     const response = await axios.post(`${API_URL}/login`, { email, password }, { withCredentials: true });
 
-    // Verifica si la respuesta contiene el token y otros datos
-    console.log('Response from API:', response.data);
-    
     if (response.data.token) {
-      localStorage.setItem('user', JSON.stringify(response.data)); // Guarda el token y otros datos del usuario
-      localStorage.setItem('name', response.data.name); // Guarda el nombre
-      localStorage.setItem('expiresIn', response.data.expiresIn); // Guarda el tiempo de expiración
-      localStorage.setItem('token', response.data.token); // Guarda el token
+      localStorage.setItem('user', JSON.stringify(response.data)); 
+      localStorage.setItem('name', response.data.name);
+      localStorage.setItem('expiresIn', response.data.expiresIn);
+      localStorage.setItem('token', response.data.token);
     }
 
     return response.data;
   } catch (error) {
     console.error('Error in authService.login:', error.response ? error.response.data : error.message);
-    throw error; // Vuelve a lanzar el error para que pueda ser manejado en el componente
+    throw error;
   }
 };
 
@@ -52,7 +49,6 @@ const getUsuarios = async () => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log('Usuarios obtenidos:', response.data); // Agregar esta línea para depuración
     return response.data;
   } catch (error) {
     console.error('Error obteniendo usuarios:', error.response ? error.response.data : error.message);
@@ -60,12 +56,11 @@ const getUsuarios = async () => {
   }
 };
 
-//obtener usuario por id 
+// Obtener usuario por ID
 const UserService = async (id) => {
   const response = await axios.get(`${API_URL}/users/${id}`);
   return response;
 };
-
 
 // Función para crear un usuario con role incluido
 const createUsuario = async ({ name, email, password, role }) => {
@@ -75,7 +70,7 @@ const createUsuario = async ({ name, email, password, role }) => {
   }
 
   try {
-    const response = await axios.post(`${API_URL}/register`, { name, email, password, role }, { // Asegúrate de usar 'name' en lugar de 'nombre'
+    const response = await axios.post(`${API_URL}/register`, { name, email, password, role }, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -90,7 +85,7 @@ const createUsuario = async ({ name, email, password, role }) => {
 
 // Función para eliminar un usuario
 const deleteUsuario = async (id) => {
-  const token = localStorage.getItem('token'); // Obtén el token para autorización
+  const token = localStorage.getItem('token');
   if (!token) {
     throw new Error('Token no disponible');
   }
@@ -113,28 +108,70 @@ const deleteUsuario = async (id) => {
 const updateUsuario = async (id, { name, email, role, password }) => {
   const token = localStorage.getItem('token');
   if (!token) {
-      throw new Error('Token no disponible');
+    throw new Error('Token no disponible');
   }
 
   try {
-      const dataToUpdate = { name, email, role };
-      if (password) {
-          dataToUpdate.password = password; // Solo incluir la contraseña si se ha cambiado
-      }
+    const dataToUpdate = { name, email, role };
+    if (password) {
+      dataToUpdate.password = password;
+    }
 
-      const response = await axios.put(`${API_URL}/users/${id}`, 
-          dataToUpdate,
-          {
-              headers: {
-                  Authorization: `Bearer ${token}`,
-              },
-              withCredentials: true,
-          }
-      );
-      return response.data;
+    const response = await axios.put(`${API_URL}/users/${id}`, dataToUpdate, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    });
+    return response.data;
   } catch (error) {
-      console.error('Error actualizando usuario:', error.response ? error.response.data : error.message);
-      throw error;
+    console.error('Error actualizando usuario:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+// Función para obtener técnicos
+const getTechnicians = async () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Token no disponible');
+  }
+
+  try {
+    const response = await axios.get(`${API_URL}/technicians`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error obteniendo técnicos:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+
+//obtener tecnicos por id 
+
+
+// Función para asignar un técnico a una tarea
+const assignTechnician = async (taskId, technicianId) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Token no disponible');
+  }
+
+  try {
+    const response = await axios.post(`${API_URL}/assign-technician`, { taskId, technicianId }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error asignando técnico:', error.response ? error.response.data : error.message);
+    throw error;
   }
 };
 
@@ -153,7 +190,9 @@ const authService = {
   createUsuario,
   updateUsuario,
   deleteUsuario,
-  UserService
+  UserService,
+  getTechnicians,
+  assignTechnician
 };
 
 export default authService;

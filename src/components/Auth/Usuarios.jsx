@@ -36,45 +36,48 @@ function Usuarios() {
   const handleAgregarOActualizarUsuario = async () => {
     // Validar campos requeridos
     if (!nombre || !email || (!editando && !password) || !role) {
-        setError("Todos los campos son obligatorios, excepto la contraseña al editar");
-        return;
+      setError("Todos los campos son obligatorios, excepto la contraseña al editar");
+      return;
     }
 
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(email)) {
-        setError("El email no es válido");
-        return;
+      setError("El email no es válido");
+      return;
     }
 
     setError(""); // Limpiar errores previos
 
-    const dataToUpdate = { name: nombre, email, role }; // Preparar datos a enviar
+    // Preparar datos a enviar
+    const dataToUpdate = { name: nombre, email, role }; 
 
     if (editando) {
-        // Editar usuario
-        if (password) {
-            dataToUpdate.password = password; // Solo incluir la contraseña si se ha cambiado
-        }
-        
-        try {
-            const updatedUser = await authService.updateUsuario(usuarioId, dataToUpdate);
-            setUsuarios(usuarios.map(usuario => 
-                usuario.id === usuarioId ? { ...usuario, ...dataToUpdate } : usuario
-            ));
-            setEditando(false);
-            setUsuarioId(null);
-        } catch (error) {
-            console.error('Error actualizando usuario:', error.response?.data || error.message);
-            setError("Error actualizando usuario. Revisa los datos e inténtalo de nuevo.");
-        }
+      // Editar usuario
+      if (password) {
+        dataToUpdate.password = password; // Solo incluir la contraseña si se ha cambiado
+      }
     } else {
-        // Agregar nuevo usuario
-        try {
-            const nuevoUsuario = await authService.createUsuario(dataToUpdate);
-            setUsuarios([...usuarios, { ...nuevoUsuario, role }]);
-        } catch (error) {
-            console.error('Error agregando usuario:', error.response?.data || error.message);
-        }
+      // Agregar nuevo usuario
+      if (password) { // Asegúrate de incluir el password al agregar un nuevo usuario
+        dataToUpdate.password = password; 
+      }
+    }
+
+    try {
+      if (editando) {
+        const updatedUser = await authService.updateUsuario(usuarioId, dataToUpdate);
+        setUsuarios(usuarios.map(usuario => 
+          usuario.id === usuarioId ? { ...usuario, ...dataToUpdate } : usuario
+        ));
+        setEditando(false);
+        setUsuarioId(null);
+      } else {
+        const nuevoUsuario = await authService.createUsuario(dataToUpdate);
+        setUsuarios([...usuarios, { ...nuevoUsuario, role }]);
+      }
+    } catch (error) {
+      console.error('Error agregando o actualizando usuario:', error.response?.data || error.message);
+      setError("Error agregando usuario. Revisa los datos e inténtalo de nuevo.");
     }
 
     // Limpiar los campos del formulario
@@ -82,7 +85,7 @@ function Usuarios() {
     setEmail("");
     setPassword("");
     setRole("usuario"); // Restablecer el rol al valor predeterminado
-};
+  };
 
   const handleEditarUsuario = (usuario) => {
     setNombre(usuario.name); // Asegurarse de usar 'name' aquí también
@@ -131,9 +134,9 @@ function Usuarios() {
 
         {/* Lista desplegable para seleccionar el rol */}
         <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="usuario">Usuario</option>
-          <option value="admin">Admin</option>
-          <option value="tecnico">Técnico</option>
+          <option value="usuario">usuario</option>
+          <option value="admin">admin</option>
+          <option value="tecnico">tecnico</option>
         </select>
 
         <button onClick={handleAgregarOActualizarUsuario}>

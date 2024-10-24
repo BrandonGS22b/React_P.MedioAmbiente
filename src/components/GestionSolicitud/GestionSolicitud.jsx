@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import SolicitudService from '../../service/GestionSolicitud.service';
 import authService from '../../service/auth.service';
 
-import '../../App.css'; // Importa el archivo CSS
+ // Importa el archivo CSS
 
 function GestionSolicitud() {
   const [solicitudes, setSolicitudes] = useState([]);
