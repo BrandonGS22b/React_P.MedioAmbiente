@@ -152,7 +152,24 @@ const getTechnicians = async () => {
 
 
 //obtener tecnicos por id 
+const getTechnicianById = async (id) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Token no disponible');
+  }
 
+  try {
+    const response = await axios.get(`${API_URL}/technicians/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error obteniendo técnico por ID:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
 
 // Función para asignar un técnico a una tarea
 const assignTechnician = async (taskId, technicianId) => {
@@ -189,6 +206,7 @@ const authService = {
   getUsuarios,
   createUsuario,
   updateUsuario,
+  getTechnicianById,
   deleteUsuario,
   UserService,
   getTechnicians,
