@@ -25,7 +25,7 @@ function HistorialMantenimiento() {
         SolicitudService.obtenerSolicitudes(),
         authService.getTechnicians(),
       ]);
-  
+
       // Verificación para solicitudes
       if (Array.isArray(solicitudesResponse.data)) {
         const filteredHistorial = solicitudesResponse.data.filter((solicitud) =>
@@ -35,9 +35,8 @@ function HistorialMantenimiento() {
       } else {
         throw new Error('Los datos de solicitudes no son un array');
       }
-  
+
       // Verificación para técnicos
-      console.log(tecnicosResponse); // Para ver la respuesta completa
       if (Array.isArray(tecnicosResponse)) { // Cambia aquí si el array está dentro de un objeto
         setTecnicos(tecnicosResponse);
       } else {
@@ -50,7 +49,6 @@ function HistorialMantenimiento() {
       setLoading(false);
     }
   }, []);
-  
 
   useEffect(() => {
     fetchData();
@@ -74,40 +72,14 @@ function HistorialMantenimiento() {
       gastos: solicitud.gastos || '',
       diasDuracion: solicitud.diasDuracion || '',
       comentarios: solicitud.comentarios || '',
+      tecnicoAsignado: solicitud.tecnico || '', // Cargar técnico asignado en el formulario
     });
-  };
-
-  const handleAsignarTecnico = async (solicitudId) => {
-    const { tecnicoAsignado } = formData;
-
-    if (!tecnicoAsignado) {
-      alert('Por favor, selecciona un técnico.');
-      return;
-    }
-
-    try {
-      await authService.assignTechnician(solicitudId, tecnicoAsignado);
-      await SolicitudService.actualizarSolicitud(solicitudId, { estado: 'En proceso' });
-
-      alert('Técnico asignado correctamente y solicitud en proceso');
-      setHistorial((prevHistorial) =>
-        prevHistorial.map((solicitud) =>
-          solicitud._id === solicitudId
-            ? { ...solicitud, tecnico: tecnicoAsignado, estado: 'En proceso' }
-            : solicitud
-        )
-      );
-      resetForm();
-    } catch (error) {
-      alert('Error al asignar técnico o actualizar estado. Inténtalo de nuevo más tarde.');
-      console.error('Error al asignar técnico:', error);
-    }
   };
 
   const handleCrearMantenimiento = async () => {
     const { descripcion, gastos, diasDuracion, comentarios, tecnicoAsignado } = formData;
 
-    if (!descripcion || !gastos || !diasDuracion || !comentarios || !tecnicoAsignado) {
+    if (!gastos || !diasDuracion || !comentarios || !tecnicoAsignado) {
       alert('Por favor, completa todos los campos.');
       return;
     }
@@ -125,20 +97,20 @@ function HistorialMantenimiento() {
   };
 
   const handleActualizarSolicitud = async (solicitudId) => {
-    const { gastos, diasDuracion, comentarios } = formData;
+    const { gastos, diasDuracion, comentarios, tecnicoAsignado } = formData;
 
-    if (!gastos || !diasDuracion || !comentarios) {
+    if (!gastos || !diasDuracion || !comentarios || !tecnicoAsignado) {
       alert('Por favor, completa todos los campos para actualizar.');
       return;
     }
 
     try {
-      await SolicitudService.actualizarSolicitud(solicitudId, { gastos, diasDuracion, comentarios });
+      await SolicitudService.actualizarSolicitud(solicitudId, { gastos, diasDuracion, comentarios, tecnico: tecnicoAsignado });
       alert('Solicitud actualizada correctamente');
 
       setHistorial((prevHistorial) =>
         prevHistorial.map((solicitud) =>
-          solicitud._id === solicitudId ? { ...solicitud, gastos, diasDuracion, comentarios } : solicitud
+          solicitud._id === solicitudId ? { ...solicitud, gastos, diasDuracion, comentarios, tecnico: tecnicoAsignado } : solicitud
         )
       );
       resetForm();
@@ -180,18 +152,6 @@ function HistorialMantenimiento() {
                 <td>{solicitud.diasDuracion}</td>
                 <td>{solicitud.comentarios}</td>
                 <td>
-                  <select
-                    value={formData.tecnicoAsignado}
-                    onChange={(e) => setFormData({ ...formData, tecnicoAsignado: e.target.value })}
-                  >
-                    <option value="">Seleccionar Técnico</option>
-                    {tecnicos.map((tecnico) => (
-                      <option key={tecnico._id} value={tecnico._id}>
-                        {tecnico.name}
-                      </option>
-                    ))}
-                  </select>
-                  <button onClick={() => handleAsignarTecnico(solicitud._id)}>Asignar Técnico</button>
                   <button onClick={() => handleSelectSolicitud(solicitud)}>Editar</button>
                 </td>
               </tr>
@@ -204,7 +164,7 @@ function HistorialMantenimiento() {
         </tbody>
       </table>
 
-      <h2>Crear Mantenimiento</h2>
+      <h2>{selectedSolicitudId ? 'Actualizar Solicitud' : 'Crear Mantenimiento'}</h2>
       <input
         type="text"
         value={formData.descripcion}
@@ -229,31 +189,21 @@ function HistorialMantenimiento() {
         onChange={(e) => setFormData({ ...formData, comentarios: e.target.value })}
         placeholder="Comentarios"
       />
-      <button onClick={handleCrearMantenimiento}>Agregar Mantenimiento</button>
-
-      {selectedSolicitudId && (
-        <div>
-          <h2>Actualizar Solicitud</h2>
-          <input
-            type="text"
-            value={formData.gastos}
-            onChange={(e) => setFormData({ ...formData, gastos: e.target.value })}
-            placeholder="Gastos"
-          />
-          <input
-            type="number"
-            value={formData.diasDuracion}
-            onChange={(e) => setFormData({ ...formData, diasDuracion: e.target.value })}
-            placeholder="Días de Duración"
-          />
-          <input
-            type="text"
-            value={formData.comentarios}
-            onChange={(e) => setFormData({ ...formData, comentarios: e.target.value })}
-            placeholder="Comentarios"
-          />
-          <button onClick={() => handleActualizarSolicitud(selectedSolicitudId)}>Actualizar Solicitud</button>
-        </div>
+      <select
+        value={formData.tecnicoAsignado}
+        onChange={(e) => setFormData({ ...formData, tecnicoAsignado: e.target.value })}
+      >
+        <option value="">Seleccionar Técnico</option>
+        {tecnicos.map((tecnico) => (
+          <option key={tecnico._id} value={tecnico._id}>
+            {tecnico.name}
+          </option>
+        ))}
+      </select>
+      {selectedSolicitudId ? (
+        <button onClick={() => handleActualizarSolicitud(selectedSolicitudId)}>Actualizar Solicitud</button>
+      ) : (
+        <button onClick={handleCrearMantenimiento}>Agregar Mantenimiento</button>
       )}
     </div>
   );
