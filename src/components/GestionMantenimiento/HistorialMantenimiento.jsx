@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import SolicitudService from '../../service/GestionSolicitud.service';
 import GestionMantenimientoService from '../../service/GestionMantenimiento.service';
+import GestionTecnicoService from '../../service/GestionTecnicos.service';
 import authService from '../../service/auth.service';
 import '../../App.css';
 
@@ -26,7 +27,6 @@ function HistorialMantenimiento() {
         authService.getTechnicians(),
       ]);
 
-      // Verificación para solicitudes
       if (Array.isArray(solicitudesResponse.data)) {
         const filteredHistorial = solicitudesResponse.data.filter((solicitud) =>
           ['Rechazada', 'Solucionado', 'En proceso', 'Revisado'].includes(solicitud.estado)
@@ -36,8 +36,7 @@ function HistorialMantenimiento() {
         throw new Error('Los datos de solicitudes no son un array');
       }
 
-      // Verificación para técnicos
-      if (Array.isArray(tecnicosResponse)) { // Cambia aquí si el array está dentro de un objeto
+      if (Array.isArray(tecnicosResponse)) {
         setTecnicos(tecnicosResponse);
       } else {
         throw new Error('Los datos de técnicos no son un array');
@@ -72,7 +71,7 @@ function HistorialMantenimiento() {
       gastos: solicitud.gastos || '',
       diasDuracion: solicitud.diasDuracion || '',
       comentarios: solicitud.comentarios || '',
-      tecnicoAsignado: solicitud.tecnico || '', // Cargar técnico asignado en el formulario
+      tecnicoAsignado: solicitud.tecnico || '',
     });
   };
 
@@ -96,27 +95,28 @@ function HistorialMantenimiento() {
     }
   };
 
-  const handleActualizarSolicitud = async (solicitudId) => {
-    const { gastos, diasDuracion, comentarios, tecnicoAsignado } = formData;
-
-    if (!gastos || !diasDuracion || !comentarios || !tecnicoAsignado) {
-      alert('Por favor, completa todos los campos para actualizar.');
+  const handleAsignarTecnico = async () => {
+    if (!selectedSolicitudId || !formData.tecnicoAsignado) {
+      alert('Selecciona una solicitud y asigna un técnico.');
       return;
     }
 
     try {
-      await SolicitudService.actualizarSolicitud(solicitudId, { gastos, diasDuracion, comentarios, tecnico: tecnicoAsignado });
-      alert('Solicitud actualizada correctamente');
-
-      setHistorial((prevHistorial) =>
-        prevHistorial.map((solicitud) =>
-          solicitud._id === solicitudId ? { ...solicitud, gastos, diasDuracion, comentarios, tecnico: tecnicoAsignado } : solicitud
-        )
-      );
+      await GestionTecnicoService.crearAsignacion({
+        solicitudId: selectedSolicitudId,
+        tecnicoId: formData.tecnicoAsignado,
+        descripcion: formData.descripcion,
+        estado: 'Asignado',
+        gastos: formData.gastos,
+        diasDuracion: formData.diasDuracion,
+        comentarios: formData.comentarios,
+      });
+      alert('Asignación de técnico creada correctamente');
       resetForm();
+      fetchData();
     } catch (error) {
-      alert('Error al actualizar la solicitud. Inténtalo de nuevo más tarde.');
-      console.error('Error al actualizar la solicitud:', error);
+      alert('Error al asignar técnico. Inténtalo de nuevo más tarde.');
+      console.error('Error al asignar técnico:', error);
     }
   };
 
@@ -164,7 +164,7 @@ function HistorialMantenimiento() {
         </tbody>
       </table>
 
-      <h2>{selectedSolicitudId ? 'Actualizar Solicitud' : 'Crear Mantenimiento'}</h2>
+      <h2>{selectedSolicitudId ? 'Asignar Técnico' : 'Crear Mantenimiento'}</h2>
       <input
         type="text"
         value={formData.descripcion}
@@ -201,7 +201,7 @@ function HistorialMantenimiento() {
         ))}
       </select>
       {selectedSolicitudId ? (
-        <button onClick={() => handleActualizarSolicitud(selectedSolicitudId)}>Actualizar Solicitud</button>
+        <button onClick={handleAsignarTecnico}>Asignar Técnico</button>
       ) : (
         <button onClick={handleCrearMantenimiento}>Agregar Mantenimiento</button>
       )}
