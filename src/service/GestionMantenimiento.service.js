@@ -45,10 +45,10 @@ const eliminarMantenimiento = async (mantenimientoId) => {
 
 // Exportar las funciones del servicio
 const GestionMantenimientoService = {
-  crearMantenimiento,
-  obtenerMantenimientos,
-  actualizarMantenimiento,
-  eliminarMantenimiento,
+  crearMantenimiento,//este
+  obtenerMantenimientos,//esta 
+  actualizarMantenimiento,//falta
+  eliminarMantenimiento,//falta
 };
 
 export default GestionMantenimientoService;

@@ -27,13 +27,32 @@ function HistorialMantenimiento() {
         authService.getTechnicians(),
       ]);
 
-      if (Array.isArray(solicitudesResponse.data)) {
-        const filteredHistorial = solicitudesResponse.data.filter((solicitud) =>
-          ['Rechazada', 'Solucionado', 'En proceso', 'Revisado'].includes(solicitud.estado)
-        );
-        setHistorial(filteredHistorial);
+      console.log("Llamando a obtenerMantenimientos...");
+      const mantenimientoResponse = await GestionMantenimientoService.obtenerMantenimientos();
+      console.log("Respuesta de obtenerMantenimientos:", mantenimientoResponse);
+
+      if (Array.isArray(solicitudesResponse.data) && Array.isArray(mantenimientoResponse)) {
+        const formattedHistorial = solicitudesResponse.data
+          .filter((solicitud) =>
+            ['Rechazada', 'Solucionado', 'En proceso', 'Revisado'].includes(solicitud.estado)
+          )
+          .map((solicitud) => {
+            const mantenimiento = mantenimientoResponse.find(
+              (mant) => mant.solicitudId === solicitud._id
+            ) || {};
+
+            return {
+              ...solicitud,
+              gastos: mantenimiento.gastos || 'N/A',
+              diasDuracion: mantenimiento.diasDuracion || 'N/A',
+              comentarios: mantenimiento.comentarios || 'N/A',
+              tecnico: tecnicosResponse.find((tecnico) => tecnico._id === mantenimiento.idTecnico)?.name || 'No asignado',
+            };
+          });
+
+        setHistorial(formattedHistorial);
       } else {
-        throw new Error('Los datos de solicitudes no son un array');
+        throw new Error('Los datos de solicitudes o mantenimientos no son un array');
       }
 
       if (Array.isArray(tecnicosResponse)) {
@@ -41,6 +60,7 @@ function HistorialMantenimiento() {
       } else {
         throw new Error('Los datos de técnicos no son un array');
       }
+
     } catch (error) {
       setError('No se pudieron obtener los datos. Intenta de nuevo más tarde.');
       console.error('Error al obtener datos:', error);
@@ -89,6 +109,7 @@ function HistorialMantenimiento() {
       await GestionMantenimientoService.crearMantenimiento(mantenimientoData);
       alert('Mantenimiento creado correctamente');
       resetForm();
+      fetchData(); // Recargar los datos para ver el nuevo mantenimiento
     } catch (error) {
       alert('Error al crear el mantenimiento. Inténtalo de nuevo más tarde.');
       console.error('Error al crear el mantenimiento:', error);
@@ -147,7 +168,7 @@ function HistorialMantenimiento() {
                 <td>{solicitud._id}</td>
                 <td>{solicitud.descripcion}</td>
                 <td>{solicitud.estado}</td>
-                <td>{solicitud.tecnico || 'No asignado'}</td>
+                <td>{solicitud.tecnico}</td>
                 <td>{solicitud.gastos}</td>
                 <td>{solicitud.diasDuracion}</td>
                 <td>{solicitud.comentarios}</td>
