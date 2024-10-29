@@ -97,14 +97,21 @@ function HistorialMantenimiento() {
 
   const handleCrearMantenimiento = async () => {
     const { descripcion, gastos, diasDuracion, comentarios, tecnicoAsignado } = formData;
-
-    if (!gastos || !diasDuracion || !comentarios || !tecnicoAsignado) {
-      alert('Por favor, completa todos los campos.');
+  
+    if (!descripcion || !gastos || !diasDuracion || !comentarios || !tecnicoAsignado || !selectedSolicitudId) {
+      alert('Por favor, completa todos los campos y selecciona una solicitud.');
       return;
     }
-
-    const mantenimientoData = { descripcion, gastos, diasDuracion, comentarios, tecnicoAsignado };
-
+  
+    const mantenimientoData = {
+      descripcion,
+      gastos: parseInt(gastos), // convertir a número si es necesario
+      diasDuracion: parseInt(diasDuracion), // convertir a número si es necesario
+      comentarios,
+      idTecnico: tecnicoAsignado,
+      solicitudId: selectedSolicitudId,
+    };
+  
     try {
       await GestionMantenimientoService.crearMantenimiento(mantenimientoData);
       alert('Mantenimiento creado correctamente');

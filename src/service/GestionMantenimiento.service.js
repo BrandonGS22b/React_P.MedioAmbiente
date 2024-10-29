@@ -9,6 +9,7 @@ const crearMantenimiento = async (mantenimientoData) => {
     const response = await axios.post(`${API_URL}/create`, mantenimientoData);
     return response.data;
   } catch (error) {
+    console.error('Error en el servicio de creación:', error);
     throw new Error(error.response.data.message || 'Error al crear el mantenimiento');
   }
 };
