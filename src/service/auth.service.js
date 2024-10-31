@@ -178,6 +178,14 @@ const assignTechnician = async (taskId, technicianId) => {
     throw new Error('Token no disponible');
   }
 
+  const isValidObjectId = (id) => {
+    return typeof id === 'string' && /^[0-9a-fA-F]{24}$/.test(id);
+  };
+
+  if (!isValidObjectId(taskId) || !isValidObjectId(technicianId)) {
+    throw new Error('ID de tarea o técnico no válido');
+  }
+
   try {
     const response = await axios.post(`${API_URL}/assign-technician`, { taskId, technicianId }, {
       headers: {

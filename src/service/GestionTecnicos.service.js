@@ -23,6 +23,24 @@ const GestionTecnicoService = {
       throw error;
     }
   },
+
+  
+
+  obtenerTodasAsignaciones: async () => {
+    try {
+      const response = await axios.get(`${API_URL}/asignaciones`);
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener todas las asignaciones:', error);
+      throw error;
+    }
+  },
+
+
+
+  
 };
+
+
 
 export default GestionTecnicoService;

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import SolicitudService from '../../service/GestionSolicitud.service';
-import GestionMantenimientoService from '../../service/GestionMantenimiento.service';
 import GestionTecnicoService from '../../service/GestionTecnicos.service';
 import authService from '../../service/auth.service';
 import '../../App.css';
@@ -21,46 +20,42 @@ function HistorialMantenimiento() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setError(null); // Reseteamos el error en cada carga
+    console.log('Fetching data...'); // Log de inicio de la carga de datos
     try {
       const [solicitudesResponse, tecnicosResponse] = await Promise.all([
         SolicitudService.obtenerSolicitudes(),
         authService.getTechnicians(),
       ]);
 
-      console.log("Llamando a obtenerMantenimientos...");
-      const mantenimientoResponse = await GestionMantenimientoService.obtenerMantenimientos();
-      console.log("Respuesta de obtenerMantenimientos:", mantenimientoResponse);
+      console.log('Solicitudes Response:', solicitudesResponse); // Log de respuesta de solicitudes
+      console.log('Técnicos Response:', tecnicosResponse); // Log de respuesta de técnicos
 
-      if (Array.isArray(solicitudesResponse.data) && Array.isArray(mantenimientoResponse)) {
-        const formattedHistorial = solicitudesResponse.data
-          .filter((solicitud) =>
-            ['Rechazada', 'Solucionado', 'En proceso', 'Revisado'].includes(solicitud.estado)
-          )
-          .map((solicitud) => {
-            const mantenimiento = mantenimientoResponse.find(
-              (mant) => mant.solicitudId === solicitud._id
-            ) || {};
+      const asignacionResponse = await GestionTecnicoService.obtenerTodasAsignaciones();
 
-            return {
-              ...solicitud,
-              gastos: mantenimiento.gastos || 'N/A',
-              diasDuracion: mantenimiento.diasDuracion || 'N/A',
-              comentarios: mantenimiento.comentarios || 'N/A',
-              tecnico: tecnicosResponse.find((tecnico) => tecnico._id === mantenimiento.idTecnico)?.name || 'No asignado',
-            };
-          });
+      console.log('Asignaciones Response:', asignacionResponse); // Log de respuesta de asignaciones
 
-        setHistorial(formattedHistorial);
-      } else {
-        throw new Error('Los datos de solicitudes o mantenimientos no son un array');
+      if (!Array.isArray(solicitudesResponse.data) || !Array.isArray(asignacionResponse)) {
+        throw new Error('Los datos de solicitudes o mantenimientos no son válidos');
       }
 
-      if (Array.isArray(tecnicosResponse)) {
-        setTecnicos(tecnicosResponse);
-      } else {
-        throw new Error('Los datos de técnicos no son un array');
-      }
+      const formattedHistorial = solicitudesResponse.data
+        .filter((solicitud) => solicitud.estado === 'Revisado')
+        .map((solicitud) => {
+          const mantenimiento = asignacionResponse.find(mant => mant.solicitudId === solicitud._id) || {};
+          return {
+            ...solicitud,
+            gastos: mantenimiento.gastos || 'N/A',
+            diasDuracion: mantenimiento.diasDuracion || 'N/A',
+            comentarios: mantenimiento.comentarios || 'N/A',
+            tecnico: tecnicosResponse.find(tecnico => tecnico._id === mantenimiento.tecnicoId)?.name || 'No asignado',
+          };
+        });
 
+      console.log('Historial Formateado:', formattedHistorial); // Log del historial formateado
+
+      setHistorial(formattedHistorial);
+      setTecnicos(tecnicosResponse);
     } catch (error) {
       setError('No se pudieron obtener los datos. Intenta de nuevo más tarde.');
       console.error('Error al obtener datos:', error);
@@ -82,12 +77,14 @@ function HistorialMantenimiento() {
       tecnicoAsignado: '',
     });
     setSelectedSolicitudId(null);
+    console.log('Formulario reiniciado'); // Log al reiniciar el formulario
   };
 
   const handleSelectSolicitud = (solicitud) => {
+    console.log('Solicitud seleccionada:', solicitud); // Log de solicitud seleccionada
     setSelectedSolicitudId(solicitud._id);
     setFormData({
-      ...formData,
+      descripcion: solicitud.descripcion || '',
       gastos: solicitud.gastos || '',
       diasDuracion: solicitud.diasDuracion || '',
       comentarios: solicitud.comentarios || '',
@@ -97,28 +94,31 @@ function HistorialMantenimiento() {
 
   const handleCrearMantenimiento = async () => {
     const { descripcion, gastos, diasDuracion, comentarios, tecnicoAsignado } = formData;
-  
+    console.log('Creando mantenimiento con datos:', formData); // Log de datos de mantenimiento
+
     if (!descripcion || !gastos || !diasDuracion || !comentarios || !tecnicoAsignado || !selectedSolicitudId) {
       alert('Por favor, completa todos los campos y selecciona una solicitud.');
       return;
     }
-  
-    const mantenimientoData = {
+
+    const asignaciontecnicoData = {
       descripcion,
-      gastos: parseInt(gastos), // convertir a número si es necesario
-      diasDuracion: parseInt(diasDuracion), // convertir a número si es necesario
+      gastos: parseInt(gastos, 10),
+      diasDuracion: parseInt(diasDuracion, 10),
       comentarios,
-      idTecnico: tecnicoAsignado,
+      tecnicoId: tecnicoAsignado,
       solicitudId: selectedSolicitudId,
     };
-  
+
     try {
-      await GestionMantenimientoService.crearMantenimiento(mantenimientoData);
-      alert('Mantenimiento creado correctamente');
+      await GestionTecnicoService.crearAsignacion(asignaciontecnicoData);
+      await SolicitudService.actualizarSolicitud(selectedSolicitudId, { estado: 'En proceso' });
+
+      alert('Mantenimiento creado y estado de la solicitud actualizado correctamente');
       resetForm();
-      fetchData(); // Recargar los datos para ver el nuevo mantenimiento
+      fetchData();
     } catch (error) {
-      alert('Error al crear el mantenimiento. Inténtalo de nuevo más tarde.');
+      alert('Error al crear el mantenimiento o actualizar el estado de la solicitud. Inténtalo de nuevo más tarde.');
       console.error('Error al crear el mantenimiento:', error);
     }
   };
@@ -129,22 +129,25 @@ function HistorialMantenimiento() {
       return;
     }
 
+    console.log('Asignando técnico con datos:', formData); // Log de datos de asignación de técnico
     try {
       await GestionTecnicoService.crearAsignacion({
         solicitudId: selectedSolicitudId,
         tecnicoId: formData.tecnicoAsignado,
         descripcion: formData.descripcion,
-        estado: 'Asignado',
-        gastos: formData.gastos,
-        diasDuracion: formData.diasDuracion,
+        gastos: parseInt(formData.gastos, 10),
+        diasDuracion: parseInt(formData.diasDuracion, 10),
         comentarios: formData.comentarios,
       });
-      alert('Asignación de técnico creada correctamente');
+
+      await SolicitudService.actualizarSolicitud(selectedSolicitudId, { estado: 'En proceso' });
+
+      alert('Asignación de técnico creada y estado de la solicitud actualizado correctamente');
       resetForm();
       fetchData();
     } catch (error) {
-      alert('Error al asignar técnico. Inténtalo de nuevo más tarde.');
-      console.error('Error al asignar técnico:', error);
+      alert('Error al asignar técnico o actualizar el estado de la solicitud. Inténtalo de nuevo más tarde.');
+      console.error('Error:', error);
     }
   };
 
@@ -198,24 +201,28 @@ function HistorialMantenimiento() {
         value={formData.descripcion}
         onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
         placeholder="Descripción"
+        required
       />
       <input
         type="text"
         value={formData.gastos}
         onChange={(e) => setFormData({ ...formData, gastos: e.target.value })}
         placeholder="Gastos"
+        required
       />
       <input
         type="number"
         value={formData.diasDuracion}
         onChange={(e) => setFormData({ ...formData, diasDuracion: e.target.value })}
         placeholder="Días de Duración"
+        required
       />
       <input
         type="text"
         value={formData.comentarios}
         onChange={(e) => setFormData({ ...formData, comentarios: e.target.value })}
         placeholder="Comentarios"
+        required
       />
       <select
         value={formData.tecnicoAsignado}
@@ -231,7 +238,7 @@ function HistorialMantenimiento() {
       {selectedSolicitudId ? (
         <button onClick={handleAsignarTecnico}>Asignar Técnico</button>
       ) : (
-        <button onClick={handleCrearMantenimiento}>Agregar Mantenimiento</button>
+        <button onClick={handleCrearMantenimiento}>Crear Mantenimiento</button>
       )}
     </div>
   );
