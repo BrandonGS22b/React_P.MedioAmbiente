@@ -10,9 +10,7 @@ function GestionTecnico() {
 
   // Obtener el usuario desde el contexto de autenticación
   const { user } = useAuth();
-
-  // Verificar que el usuario esté cargado y tenga un _id, o usar el ID guardado en localStorage
-  const tecnicoId = user && user._id ? user._id : JSON.parse(localStorage.getItem('user'))?._id;
+  const tecnicoId = user && user._id ? user._id : null;
 
   useEffect(() => {
     if (user) {
@@ -29,9 +27,8 @@ function GestionTecnico() {
       setCargando(true);
 
       try {
-        // Verificar que el técnico tenga un ID válido antes de hacer la solicitud
         if (!tecnicoId) {
-          console.warn('ID de técnico no encontrado');
+          console.warn('ID de técnico no encontrado en el usuario');
           return;
         }
 
@@ -47,7 +44,6 @@ function GestionTecnico() {
       }
     };
 
-    // Solo ejecutar fetchSolicitudes si tecnicoId existe
     if (tecnicoId) {
       fetchSolicitudes();
     }
@@ -121,10 +117,14 @@ function GestionTecnico() {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Solicitud ID</th>
+            <th>Técnico ID</th>
             <th>Descripción</th>
+            <th>Gastos</th>
+            <th>Días de Duración</th>
+            <th>Comentarios</th>
             <th>Estado</th>
             <th>Evidencia</th>
-            <th>Comentarios</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -133,20 +133,17 @@ function GestionTecnico() {
             solicitudes.map((solicitud) => (
               <tr key={solicitud._id}>
                 <td>{solicitud._id}</td>
+                <td>{solicitud.solicitudId}</td>
+                <td>{solicitud.tecnicoId}</td>
                 <td>{solicitud.descripcion}</td>
+                <td>{solicitud.gastos}</td>
+                <td>{solicitud.diasDuracion}</td>
+                <td>{solicitud.comentarios}</td>
                 <td>{solicitud.estado}</td>
                 <td>
                   <input
                     type="file"
                     onChange={(e) => handleEvidenciaChange(e, solicitud._id)}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={comentarios[solicitud._id] || ''}
-                    onChange={(e) => handleComentariosChange(e, solicitud._id)}
-                    placeholder="Comentarios"
                   />
                 </td>
                 <td>
@@ -158,7 +155,7 @@ function GestionTecnico() {
             ))
           ) : (
             <tr>
-              <td colSpan="6">No hay solicitudes en proceso</td>
+              <td colSpan="10">No hay solicitudes en proceso</td>
             </tr>
           )}
         </tbody>
