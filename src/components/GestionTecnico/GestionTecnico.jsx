@@ -26,31 +26,34 @@ function GestionTecnico() {
   useEffect(() => {
     const fetchSolicitudes = async () => {
       setCargando(true);
-    
+  
       try {
         if (!tecnicoId) {
           console.warn('ID de técnico no encontrado en el usuario');
           return;
         }
-    
+  
         const response = await GestionTecnicoService.obtenerAsignacionesPorTecnico(tecnicoId);
-        console.log("Respuesta del backend:", response); // Ver la respuesta completa
-        const [solicitudesResponse] = await Promise.all([
-          SolicitudService.obtenerSolicitudes(),
-        ]);
+        console.log("Respuesta del backend (Asignaciones por Técnico):", response);
+  
+        // Obtener el array de solicitudes desde `solicitudesResponse.data`
+        const solicitudesResponse = await SolicitudService.obtenerSolicitudes();
+        console.log("Solicitudes Response completa:", solicitudesResponse);
+  
+        // Asegúrate de que `data` es un array antes de recorrerlo
+        const solicitudesData = solicitudesResponse.data || [];
         
-        // Mostrar en consola el estado de cada solicitud
-        response.forEach((solicitud) => {
-          console.log('Solicitud completa:', solicitud); // Ver cada solicitud completa
-          console.log('Solicitudes Response:', solicitudesResponse);
-          console.log('Solicitudes Response estado:', solicitudesResponse.estado);
-          
+        // Log para ver cada solicitud y su estado
+        solicitudesData.forEach((solicitud) => {
+          console.log(`Solicitud ID: ${solicitud._id}, Estado: ${solicitud.estado}`);
         });
   
-        // Asegurarse de que el campo 'status' o 'estado' existe antes de filtrar
-        const solicitudesEnProceso = response.filter((solicitud) =>
-          (solicitud.status || solicitud.estado) === 'En proceso' // Usa 'status' o 'estado' según esté disponible
+        // Filtrar las solicitudes que están en "En proceso"
+        const solicitudesEnProceso = solicitudesData.filter(
+          (solicitud) => solicitud.estado === 'En proceso'
         );
+  
+        // Actualizar el estado `solicitudes` con las solicitudes filtradas
         setSolicitudes(solicitudesEnProceso);
       } catch (error) {
         console.error('Error al obtener las solicitudes:', error);
