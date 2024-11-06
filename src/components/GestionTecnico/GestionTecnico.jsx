@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import GestionTecnicoService from '../../service/GestionTecnicos.service';
 import useAuth from '../../context/useAuth';
+import SolicitudService from '../../service/GestionSolicitud.service';
 
 function GestionTecnico() {
   const [solicitudes, setSolicitudes] = useState([]);
@@ -25,16 +26,30 @@ function GestionTecnico() {
   useEffect(() => {
     const fetchSolicitudes = async () => {
       setCargando(true);
-
+    
       try {
         if (!tecnicoId) {
           console.warn('ID de técnico no encontrado en el usuario');
           return;
         }
-
+    
         const response = await GestionTecnicoService.obtenerAsignacionesPorTecnico(tecnicoId);
-        const solicitudesEnProceso = response.filter(
-          (solicitud) => solicitud.estado === 'Proceso'
+        console.log("Respuesta del backend:", response); // Ver la respuesta completa
+        const [solicitudesResponse] = await Promise.all([
+          SolicitudService.obtenerSolicitudes(),
+        ]);
+        
+        // Mostrar en consola el estado de cada solicitud
+        response.forEach((solicitud) => {
+          console.log('Solicitud completa:', solicitud); // Ver cada solicitud completa
+          console.log('Solicitudes Response:', solicitudesResponse);
+          console.log('Solicitudes Response estado:', solicitudesResponse.estado);
+          
+        });
+  
+        // Asegurarse de que el campo 'status' o 'estado' existe antes de filtrar
+        const solicitudesEnProceso = response.filter((solicitud) =>
+          (solicitud.status || solicitud.estado) === 'En proceso' // Usa 'status' o 'estado' según esté disponible
         );
         setSolicitudes(solicitudesEnProceso);
       } catch (error) {
@@ -43,7 +58,7 @@ function GestionTecnico() {
         setCargando(false);
       }
     };
-
+  
     if (tecnicoId) {
       fetchSolicitudes();
     }
@@ -78,88 +93,70 @@ function GestionTecnico() {
     const formData = new FormData();
     formData.append('evidencia', selectedEvidencia);
     formData.append('comentarios', comentario);
-    formData.append('estado', 'Solucionado');
+    formData.append('status', 'Solucionado'); // Actualizando status a "Solucionado"
 
     try {
       await GestionTecnicoService.cargarEvidencia(solicitudId, formData);
+
+      // Actualizar el status de la solicitud a "Solucionado"
+      await SolicitudService.actualizarSolicitud(solicitudId, { status: 'Solucionado' });
+
       alert('Evidencia cargada y solicitud actualizada correctamente');
-
+      
+      // Refrescar las solicitudes para reflejar el cambio
       setSolicitudes((prevSolicitudes) =>
-        prevSolicitudes.filter((solicitud) => solicitud._id !== solicitudId)
+        prevSolicitudes.map((solicitud) =>
+          solicitud._id === solicitudId ? { ...solicitud, status: 'Solucionado' } : solicitud
+        )
       );
-
-      setEvidencias((prev) => {
-        const newState = { ...prev };
-        delete newState[solicitudId];
-        return newState;
-      });
-      setComentarios((prev) => {
-        const newState = { ...prev };
-        delete newState[solicitudId];
-        return newState;
-      });
     } catch (error) {
-      console.error('Error al enviar la evidencia:', error);
-      alert('Error al enviar la evidencia. Inténtalo de nuevo.');
+      alert('Error al cargar la evidencia o actualizar el status de la solicitud. Intenta de nuevo más tarde.');
+      console.error('Error al cargar evidencia:', error);
     }
   };
 
-  if (cargando) {
-    return <div>Cargando solicitudes...</div>;
-  }
+  if (cargando) return <div>Cargando...</div>;
 
   return (
     <div className="gestion-tecnico">
-      <h1>Gestión de Solicitudes</h1>
-      <p>Aquí podrás ver las solicitudes que se te han asignado y cargar las evidencias correspondientes.</p>
-
-      <table className="solicitudes-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Solicitud ID</th>
-            <th>Técnico ID</th>
-            <th>Descripción</th>
-            <th>Gastos</th>
-            <th>Días de Duración</th>
-            <th>Comentarios</th>
-            <th>Estado</th>
-            <th>Evidencia</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {solicitudes.length > 0 ? (
-            solicitudes.map((solicitud) => (
+      <h1>Gestión de Técnicos</h1>
+      {solicitudes.length === 0 ? (
+        <p>No tienes solicitudes en proceso.</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Descripción</th>
+              <th>Status</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {solicitudes.map((solicitud) => (
               <tr key={solicitud._id}>
                 <td>{solicitud._id}</td>
-                <td>{solicitud.solicitudId}</td>
-                <td>{solicitud.tecnicoId}</td>
                 <td>{solicitud.descripcion}</td>
-                <td>{solicitud.gastos}</td>
-                <td>{solicitud.diasDuracion}</td>
-                <td>{solicitud.comentarios}</td>
                 <td>{solicitud.estado}</td>
                 <td>
                   <input
                     type="file"
                     onChange={(e) => handleEvidenciaChange(e, solicitud._id)}
                   />
-                </td>
-                <td>
+                  <textarea
+                    value={comentarios[solicitud._id] || ''}
+                    onChange={(e) => handleComentariosChange(e, solicitud._id)}
+                    placeholder="Agregar comentario"
+                  />
                   <button onClick={() => handleEnviarEvidencia(solicitud._id)}>
                     Enviar Evidencia
                   </button>
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="10">No hay solicitudes en proceso</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
