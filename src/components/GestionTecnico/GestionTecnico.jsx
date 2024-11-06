@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import GestionTecnicoService from '../../service/GestionTecnicos.service';
 import useAuth from '../../context/useAuth';
-import SolicitudService from '../../service/GestionSolicitud.service';
 
 function GestionTecnico() {
-  const [solicitudes, setSolicitudes] = useState([]);
+  const [asignaciones, setAsignaciones] = useState([]);
   const [evidencias, setEvidencias] = useState({});
   const [comentarios, setComentarios] = useState({});
   const [cargando, setCargando] = useState(true);
@@ -24,7 +23,7 @@ function GestionTecnico() {
   }, [user, tecnicoId]);
 
   useEffect(() => {
-    const fetchSolicitudes = async () => {
+    const fetchAsignaciones = async () => {
       setCargando(true);
   
       try {
@@ -33,37 +32,21 @@ function GestionTecnico() {
           return;
         }
   
+        // Obtener las asignaciones del técnico específico
         const response = await GestionTecnicoService.obtenerAsignacionesPorTecnico(tecnicoId);
         console.log("Respuesta del backend (Asignaciones por Técnico):", response);
   
-        // Obtener el array de solicitudes desde `solicitudesResponse.data`
-        const solicitudesResponse = await SolicitudService.obtenerSolicitudes();
-        console.log("Solicitudes Response completa:", solicitudesResponse);
-  
-        // Asegúrate de que `data` es un array antes de recorrerlo
-        const solicitudesData = solicitudesResponse.data || [];
-        
-        // Log para ver cada solicitud y su estado
-        solicitudesData.forEach((solicitud) => {
-          console.log(`Solicitud ID: ${solicitud._id}, Estado: ${solicitud.estado}`);
-        });
-  
-        // Filtrar las solicitudes que están en "En proceso"
-        const solicitudesEnProceso = solicitudesData.filter(
-          (solicitud) => solicitud.estado === 'En proceso'
-        );
-  
-        // Actualizar el estado `solicitudes` con las solicitudes filtradas
-        setSolicitudes(solicitudesEnProceso);
+        // Guardar las asignaciones en el estado
+        setAsignaciones(response);
       } catch (error) {
-        console.error('Error al obtener las solicitudes:', error);
+        console.error('Error al obtener las asignaciones:', error);
       } finally {
         setCargando(false);
       }
     };
   
     if (tecnicoId) {
-      fetchSolicitudes();
+      fetchAsignaciones();
     }
   }, [tecnicoId]);
 
@@ -102,14 +85,12 @@ function GestionTecnico() {
       await GestionTecnicoService.cargarEvidencia(solicitudId, formData);
 
       // Actualizar el status de la solicitud a "Solucionado"
-      await SolicitudService.actualizarSolicitud(solicitudId, { status: 'Solucionado' });
-
       alert('Evidencia cargada y solicitud actualizada correctamente');
       
-      // Refrescar las solicitudes para reflejar el cambio
-      setSolicitudes((prevSolicitudes) =>
-        prevSolicitudes.map((solicitud) =>
-          solicitud._id === solicitudId ? { ...solicitud, status: 'Solucionado' } : solicitud
+      // Refrescar las asignaciones para reflejar el cambio
+      setAsignaciones((prevAsignaciones) =>
+        prevAsignaciones.map((asignacion) =>
+          asignacion._id === solicitudId ? { ...asignacion, status: 'Solucionado' } : asignacion
         )
       );
     } catch (error) {
@@ -123,8 +104,8 @@ function GestionTecnico() {
   return (
     <div className="gestion-tecnico">
       <h1>Gestión de Técnicos</h1>
-      {solicitudes.length === 0 ? (
-        <p>No tienes solicitudes en proceso.</p>
+      {asignaciones.length === 0 ? (
+        <p>No tienes asignaciones en proceso.</p>
       ) : (
         <table>
           <thead>
@@ -136,22 +117,22 @@ function GestionTecnico() {
             </tr>
           </thead>
           <tbody>
-            {solicitudes.map((solicitud) => (
-              <tr key={solicitud._id}>
-                <td>{solicitud._id}</td>
-                <td>{solicitud.descripcion}</td>
-                <td>{solicitud.estado}</td>
+            {asignaciones.map((asignacion) => (
+              <tr key={asignacion._id}>
+                <td>{asignacion._id}</td>
+                <td>{asignacion.descripcion}</td>
+                <td>{asignacion.estado || 'En proceso'}</td>
                 <td>
                   <input
                     type="file"
-                    onChange={(e) => handleEvidenciaChange(e, solicitud._id)}
+                    onChange={(e) => handleEvidenciaChange(e, asignacion._id)}
                   />
                   <textarea
-                    value={comentarios[solicitud._id] || ''}
-                    onChange={(e) => handleComentariosChange(e, solicitud._id)}
+                    value={comentarios[asignacion._id] || ''}
+                    onChange={(e) => handleComentariosChange(e, asignacion._id)}
                     placeholder="Agregar comentario"
                   />
-                  <button onClick={() => handleEnviarEvidencia(solicitud._id)}>
+                  <button onClick={() => handleEnviarEvidencia(asignacion._id)}>
                     Enviar Evidencia
                   </button>
                 </td>
