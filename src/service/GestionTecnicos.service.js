@@ -1,4 +1,3 @@
-// service/GestionTecnico.service.js
 import axios from 'axios';
 
 const API_URL = 'https://loginexpress-ts-jwt.onrender.com/api/GestionTecnico';
@@ -7,12 +6,9 @@ const GestionTecnicoService = {
   crearAsignacion: async (asignacionData, imagenFile) => {
     try {
       const formData = new FormData();
-      // Agregar los datos de la asignación al FormData
       for (const key in asignacionData) {
         formData.append(key, asignacionData[key]);
       }
-
-      // Agregar la imagen si existe
       if (imagenFile) {
         formData.append('imagen', imagenFile);
       }
@@ -27,20 +23,16 @@ const GestionTecnicoService = {
     }
   },
 
-  obtenerAsignacionesPorTecnico: async (tecnicoId) => { // Cambia el '=' por ':'
+  obtenerAsignacionesPorTecnico: async (tecnicoId) => {
     try {
-      const token = localStorage.getItem('token'); // Obtener el token
-      const user = JSON.parse(localStorage.getItem('user')); // Obtener el usuario
-      const role = user ? user.role : undefined; // Obtener el rol
-
-      // Asegúrate de que el token y el rol están disponibles antes de hacer la solicitud
+      const token = localStorage.getItem('token');
       if (!token) {
         throw new Error("No hay token de autenticación disponible");
       }
 
       const response = await axios.get(`${API_URL}/asignaciones/tecnico/${tecnicoId}`, {
         headers: {
-          Authorization: `Bearer ${token}` // Incluir el token en la cabecera
+          Authorization: `Bearer ${token}`
         }
       });
 
@@ -49,7 +41,7 @@ const GestionTecnicoService = {
       console.error(`Error al obtener asignaciones para el técnico con ID ${tecnicoId}:`, error.response ? error.response.data : error.message);
       throw error;
     }
-},
+  },
 
   obtenerTodasAsignaciones: async () => {
     try {
@@ -60,6 +52,29 @@ const GestionTecnicoService = {
       throw error;
     }
   },
+
+  cargarEvidencia: async (solicitudId, formData) => {
+    try {
+      const response = await axios.patch(`${API_URL}/asignaciones/${solicitudId}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error al cargar evidencia para la solicitud ${solicitudId}:`, error);
+      throw error;
+    }
+  },
+
+  eliminarAsignacion: async (id) => {
+    try {
+      const response = await axios.delete(`${API_URL}/asignaciones/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error al eliminar la asignación con ID ${id}:`, error);
+      throw error;
+    }
+  }
+  
 };
 
 export default GestionTecnicoService;

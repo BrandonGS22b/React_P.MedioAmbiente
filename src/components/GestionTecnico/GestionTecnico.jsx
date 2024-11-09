@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import GestionTecnicoService from '../../service/GestionTecnicos.service';
+import SolicitudService from '../../service/GestionSolicitud.service';
 import useAuth from '../../context/useAuth';
 
 function GestionTecnico() {
@@ -7,44 +8,30 @@ function GestionTecnico() {
   const [evidencias, setEvidencias] = useState({});
   const [comentarios, setComentarios] = useState({});
   const [cargando, setCargando] = useState(true);
+  const [selectedSolicitudId, setSelectedSolicitudId] = useState(null);
 
-  // Obtener el usuario desde el contexto de autenticación
   const { user } = useAuth();
   const tecnicoId = user && user._id ? user._id : null;
 
   useEffect(() => {
-    if (user) {
-      console.log('Usuario completo:', user);
-      console.log('Rol del usuario:', user.role);
-      console.log('ID del técnico:', tecnicoId);
-    } else {
-      console.log('Usuario no encontrado en el contexto de autenticación');
-    }
-  }, [user, tecnicoId]);
-
-  useEffect(() => {
     const fetchAsignaciones = async () => {
       setCargando(true);
-  
       try {
         if (!tecnicoId) {
           console.warn('ID de técnico no encontrado en el usuario');
           return;
         }
-  
-        // Obtener las asignaciones del técnico específico
+        // Filtrar asignaciones que no estén en estado "Solucionado"
         const response = await GestionTecnicoService.obtenerAsignacionesPorTecnico(tecnicoId);
-        console.log("Respuesta del backend (Asignaciones por Técnico):", response);
-  
-        // Guardar las asignaciones en el estado
-        setAsignaciones(response);
+        const asignacionesEnProceso = response.filter((asignacion) => asignacion.estado !== 'Solucionado');
+        setAsignaciones(asignacionesEnProceso);
       } catch (error) {
         console.error('Error al obtener las asignaciones:', error);
       } finally {
         setCargando(false);
       }
     };
-  
+
     if (tecnicoId) {
       fetchAsignaciones();
     }
@@ -53,9 +40,9 @@ function GestionTecnico() {
   const handleEvidenciaChange = (e, solicitudId) => {
     const file = e.target.files[0];
     if (file) {
-      const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+      const validTypes = ['image/jpeg', 'image/png'];
       if (!validTypes.includes(file.type)) {
-        alert('Por favor, selecciona un archivo de tipo imagen (JPEG/PNG) o PDF.');
+        alert('Por favor, selecciona un archivo de tipo imagen (JPEG/PNG).');
         return;
       }
       setEvidencias((prev) => ({ ...prev, [solicitudId]: file }));
@@ -67,38 +54,54 @@ function GestionTecnico() {
     setComentarios((prev) => ({ ...prev, [solicitudId]: comentario }));
   };
 
-  const handleEnviarEvidencia = async (solicitudId) => {
-    const selectedEvidencia = evidencias[solicitudId];
-    const comentario = comentarios[solicitudId];
-
+  const handleEnviarEvidencia = async (asignacionId) => {
+    const selectedEvidencia = evidencias[asignacionId];
+    const comentario = comentarios[asignacionId];
+  
     if (!selectedEvidencia) {
       alert('Por favor, carga una evidencia antes de enviar.');
       return;
     }
-
+  
     const formData = new FormData();
-    formData.append('evidencia', selectedEvidencia);
+    formData.append('imagen', selectedEvidencia);
     formData.append('comentarios', comentario);
-    formData.append('status', 'Solucionado'); // Actualizando status a "Solucionado"
-
+  
     try {
-      await GestionTecnicoService.cargarEvidencia(solicitudId, formData);
-
-      // Actualizar el status de la solicitud a "Solucionado"
+      // Cargar la evidencia
+      await GestionTecnicoService.cargarEvidencia(asignacionId, formData);
+  
+      // Ahora obtenemos el "solicitudId" de la asignación
+      const asignacion = asignaciones.find((asignacion) => asignacion._id === asignacionId);
+  
+      if (!asignacion || !asignacion.solicitudId) {
+        throw new Error('Solicitud no encontrada en la asignación');
+      }
+  
+      console.log('Actualizando solicitud con ID:', asignacion.solicitudId);
+  
+      // Actualizamos la solicitud utilizando el solicitudId de la asignación
+      await SolicitudService.actualizarSolicitud(asignacion.solicitudId, { estado: 'Solucionado' });
+  
       alert('Evidencia cargada y solicitud actualizada correctamente');
-      
-      // Refrescar las asignaciones para reflejar el cambio
+  
+      // Actualizamos el estado de la asignación en el frontend para reflejar el cambio
       setAsignaciones((prevAsignaciones) =>
         prevAsignaciones.map((asignacion) =>
-          asignacion._id === solicitudId ? { ...asignacion, status: 'Solucionado' } : asignacion
+          asignacion._id === asignacionId ? { ...asignacion, estado: 'Solucionado' } : asignacion
         )
       );
+  
+      // Filtramos la asignación que ya fue solucionada
+      setAsignaciones((prevAsignaciones) =>
+        prevAsignaciones.filter((asignacion) => asignacion._id !== asignacionId)
+      );
     } catch (error) {
-      alert('Error al cargar la evidencia o actualizar el status de la solicitud. Intenta de nuevo más tarde.');
+      alert('Error al cargar la evidencia o actualizar el estado de la solicitud. Intenta de nuevo más tarde.');
       console.error('Error al cargar evidencia:', error);
     }
   };
-
+  
   if (cargando) return <div>Cargando...</div>;
 
   return (
@@ -125,6 +128,7 @@ function GestionTecnico() {
                 <td>
                   <input
                     type="file"
+                    accept="image/png, image/jpeg"
                     onChange={(e) => handleEvidenciaChange(e, asignacion._id)}
                   />
                   <textarea

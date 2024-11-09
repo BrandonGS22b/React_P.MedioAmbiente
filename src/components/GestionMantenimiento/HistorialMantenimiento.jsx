@@ -10,7 +10,6 @@ function HistorialMantenimiento() {
     descripcion: '',
     gastos: '',
     diasDuracion: '',
-    comentarios: '',
     tecnicoAsignado: '',
   });
   const [selectedSolicitudId, setSelectedSolicitudId] = useState(null);
@@ -30,7 +29,7 @@ function HistorialMantenimiento() {
 
       console.log('Solicitudes Response:', solicitudesResponse); // Log de respuesta de solicitudes
       console.log('Técnicos Response:', tecnicosResponse); // Log de respuesta de técnicos
-
+ 
       const asignacionResponse = await GestionTecnicoService.obtenerTodasAsignaciones();
 
       console.log('Asignaciones Response:', asignacionResponse); // Log de respuesta de asignaciones
@@ -47,7 +46,6 @@ function HistorialMantenimiento() {
             ...solicitud,
             gastos: mantenimiento.gastos || 'N/A',
             diasDuracion: mantenimiento.diasDuracion || 'N/A',
-            comentarios: mantenimiento.comentarios || 'N/A',
             tecnico: tecnicosResponse.find(tecnico => tecnico._id === mantenimiento.tecnicoId)?.name || 'No asignado',
           };
         });
@@ -73,7 +71,6 @@ function HistorialMantenimiento() {
       descripcion: '',
       gastos: '',
       diasDuracion: '',
-      comentarios: '',
       tecnicoAsignado: '',
     });
     setSelectedSolicitudId(null);
@@ -87,16 +84,15 @@ function HistorialMantenimiento() {
       descripcion: solicitud.descripcion || '',
       gastos: solicitud.gastos || '',
       diasDuracion: solicitud.diasDuracion || '',
-      comentarios: solicitud.comentarios || '',
       tecnicoAsignado: solicitud.tecnico || '',
     });
   };
 
   const handleCrearMantenimiento = async () => {
-    const { descripcion, gastos, diasDuracion, comentarios, tecnicoAsignado } = formData;
+    const { descripcion, gastos, diasDuracion,tecnicoAsignado } = formData;
     console.log('Creando mantenimiento con datos:', formData); // Log de datos de mantenimiento
 
-    if (!descripcion || !gastos || !diasDuracion || !comentarios || !tecnicoAsignado || !selectedSolicitudId) {
+    if (!descripcion || !gastos || !diasDuracion || !tecnicoAsignado || !selectedSolicitudId) {
       alert('Por favor, completa todos los campos y selecciona una solicitud.');
       return;
     }
@@ -105,7 +101,6 @@ function HistorialMantenimiento() {
       descripcion,
       gastos: parseInt(gastos, 10),
       diasDuracion: parseInt(diasDuracion, 10),
-      comentarios,
       tecnicoId: tecnicoAsignado,
       solicitudId: selectedSolicitudId,
     };
@@ -137,7 +132,6 @@ function HistorialMantenimiento() {
         descripcion: formData.descripcion,
         gastos: parseInt(formData.gastos, 10),
         diasDuracion: parseInt(formData.diasDuracion, 10),
-        comentarios: formData.comentarios,
       });
 
       await SolicitudService.actualizarSolicitud(selectedSolicitudId, { estado: 'En proceso' });
@@ -167,7 +161,6 @@ function HistorialMantenimiento() {
             <th>Técnico Asignado</th>
             <th>Gastos</th>
             <th>Días de Duración</th>
-            <th>Comentarios</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -181,7 +174,6 @@ function HistorialMantenimiento() {
                 <td>{solicitud.tecnico}</td>
                 <td>{solicitud.gastos}</td>
                 <td>{solicitud.diasDuracion}</td>
-                <td>{solicitud.comentarios}</td>
                 <td>
                   <button onClick={() => handleSelectSolicitud(solicitud)}>Editar</button>
                 </td>
@@ -215,13 +207,6 @@ function HistorialMantenimiento() {
         value={formData.diasDuracion}
         onChange={(e) => setFormData({ ...formData, diasDuracion: e.target.value })}
         placeholder="Días de Duración"
-        required
-      />
-      <input
-        type="text"
-        value={formData.comentarios}
-        onChange={(e) => setFormData({ ...formData, comentarios: e.target.value })}
-        placeholder="Comentarios"
         required
       />
       <select
