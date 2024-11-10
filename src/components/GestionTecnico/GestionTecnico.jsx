@@ -8,10 +8,30 @@ function GestionTecnico() {
   const [evidencias, setEvidencias] = useState({});
   const [comentarios, setComentarios] = useState({});
   const [cargando, setCargando] = useState(true);
-  const [selectedSolicitudId, setSelectedSolicitudId] = useState(null);
-
+  
   const { user } = useAuth();
   const tecnicoId = user && user._id ? user._id : null;
+
+  // Función para obtener el estado actual de una solicitud del backend
+  const fetchEstadoSolicitud = async (solicitudId) => {
+    try {
+      const solicitud = await SolicitudService.obtenerSolicitudPorId(solicitudId);
+      console.log('Datos de solicitud obtenidos:', solicitud); // Muestra toda la respuesta
+  
+      if (solicitud && solicitud.data && solicitud.data.estado) {
+        console.log('Estado de la solicitud:', solicitud.data.estado);
+        return solicitud.data.estado;
+      } else {
+        console.log('La solicitud no tiene un estado válido o no se ha encontrado.');
+        return null;
+      }
+    } catch (error) {
+      console.log('Error al obtener el estado para solicitud con ID:', solicitudId);
+      console.error('Error al obtener el estado de la solicitud:', error);
+      return null;
+    }
+  };
+  
 
   useEffect(() => {
     const fetchAsignaciones = async () => {
@@ -21,17 +41,29 @@ function GestionTecnico() {
           console.warn('ID de técnico no encontrado en el usuario');
           return;
         }
-        // Filtrar asignaciones que no estén en estado "Solucionado"
+        
+        // Obtener todas las asignaciones y verificar el estado actualizado
         const response = await GestionTecnicoService.obtenerAsignacionesPorTecnico(tecnicoId);
-        const asignacionesEnProceso = response.filter((asignacion) => asignacion.estado !== 'Solucionado');
-        setAsignaciones(asignacionesEnProceso);
+        const asignacionesEnProceso = await Promise.all(
+          response.map(async (asignacion) => {
+            const estadoActualizado = await fetchEstadoSolicitud(asignacion.solicitudId);
+            return { ...asignacion, estado: estadoActualizado };
+          })
+        );
+  
+        // Filtrar las asignaciones que están "En proceso"
+        const asignacionesFiltradas = asignacionesEnProceso.filter(
+          (asignacion) => asignacion.estado === 'En proceso'
+        );
+  
+        setAsignaciones(asignacionesFiltradas);
       } catch (error) {
         console.error('Error al obtener las asignaciones:', error);
       } finally {
         setCargando(false);
       }
     };
-
+  
     if (tecnicoId) {
       fetchAsignaciones();
     }
@@ -57,51 +89,44 @@ function GestionTecnico() {
   const handleEnviarEvidencia = async (asignacionId) => {
     const selectedEvidencia = evidencias[asignacionId];
     const comentario = comentarios[asignacionId];
-  
+
     if (!selectedEvidencia) {
       alert('Por favor, carga una evidencia antes de enviar.');
       return;
     }
-  
+
     const formData = new FormData();
     formData.append('imagen', selectedEvidencia);
     formData.append('comentarios', comentario);
-  
+
     try {
       // Cargar la evidencia
       await GestionTecnicoService.cargarEvidencia(asignacionId, formData);
-  
-      // Ahora obtenemos el "solicitudId" de la asignación
-      const asignacion = asignaciones.find((asignacion) => asignacion._id === asignacionId);
-  
+
+      // Obtener el `solicitudId` de la asignación
+      const asignacion = asignaciones.find((a) => a._id === asignacionId);
       if (!asignacion || !asignacion.solicitudId) {
         throw new Error('Solicitud no encontrada en la asignación');
       }
-  
-      console.log('Actualizando solicitud con ID:', asignacion.solicitudId);
-  
-      // Actualizamos la solicitud utilizando el solicitudId de la asignación
+
+      // Actualizar el estado en el backend
       await SolicitudService.actualizarSolicitud(asignacion.solicitudId, { estado: 'Solucionado' });
-  
-      alert('Evidencia cargada y solicitud actualizada correctamente');
-  
-      // Actualizamos el estado de la asignación en el frontend para reflejar el cambio
+
+      // Actualizar el estado en el frontend
+      const nuevoEstado = await fetchEstadoSolicitud(asignacion.solicitudId);
       setAsignaciones((prevAsignaciones) =>
-        prevAsignaciones.map((asignacion) =>
-          asignacion._id === asignacionId ? { ...asignacion, estado: 'Solucionado' } : asignacion
+        prevAsignaciones.map((a) =>
+          a._id === asignacionId ? { ...a, estado: nuevoEstado } : a
         )
       );
-  
-      // Filtramos la asignación que ya fue solucionada
-      setAsignaciones((prevAsignaciones) =>
-        prevAsignaciones.filter((asignacion) => asignacion._id !== asignacionId)
-      );
+
+      alert('Evidencia cargada y solicitud actualizada correctamente');
     } catch (error) {
       alert('Error al cargar la evidencia o actualizar el estado de la solicitud. Intenta de nuevo más tarde.');
       console.error('Error al cargar evidencia:', error);
     }
   };
-  
+
   if (cargando) return <div>Cargando...</div>;
 
   return (
@@ -114,8 +139,9 @@ function GestionTecnico() {
           <thead>
             <tr>
               <th>ID</th>
+              <th>Solicitud ID</th>
               <th>Descripción</th>
-              <th>Status</th>
+              <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -123,8 +149,9 @@ function GestionTecnico() {
             {asignaciones.map((asignacion) => (
               <tr key={asignacion._id}>
                 <td>{asignacion._id}</td>
+                <td>{asignacion.solicitudId}</td>
                 <td>{asignacion.descripcion}</td>
-                <td>{asignacion.estado || 'En proceso'}</td>
+                <td>{asignacion.estado}</td>
                 <td>
                   <input
                     type="file"

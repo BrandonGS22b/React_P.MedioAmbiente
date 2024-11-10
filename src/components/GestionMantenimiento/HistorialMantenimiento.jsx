@@ -29,7 +29,7 @@ function HistorialMantenimiento() {
 
       console.log('Solicitudes Response:', solicitudesResponse); // Log de respuesta de solicitudes
       console.log('Técnicos Response:', tecnicosResponse); // Log de respuesta de técnicos
- 
+
       const asignacionResponse = await GestionTecnicoService.obtenerTodasAsignaciones();
 
       console.log('Asignaciones Response:', asignacionResponse); // Log de respuesta de asignaciones
@@ -86,36 +86,6 @@ function HistorialMantenimiento() {
       diasDuracion: solicitud.diasDuracion || '',
       tecnicoAsignado: solicitud.tecnico || '',
     });
-  };
-
-  const handleCrearMantenimiento = async () => {
-    const { descripcion, gastos, diasDuracion,tecnicoAsignado } = formData;
-    console.log('Creando mantenimiento con datos:', formData); // Log de datos de mantenimiento
-
-    if (!descripcion || !gastos || !diasDuracion || !tecnicoAsignado || !selectedSolicitudId) {
-      alert('Por favor, completa todos los campos y selecciona una solicitud.');
-      return;
-    }
-
-    const asignaciontecnicoData = {
-      descripcion,
-      gastos: parseInt(gastos, 10),
-      diasDuracion: parseInt(diasDuracion, 10),
-      tecnicoId: tecnicoAsignado,
-      solicitudId: selectedSolicitudId,
-    };
-
-    try {
-      await GestionTecnicoService.crearAsignacion(asignaciontecnicoData);
-      await SolicitudService.actualizarSolicitud(selectedSolicitudId, { estado: 'En proceso' });
-
-      alert('Mantenimiento creado y estado de la solicitud actualizado correctamente');
-      resetForm();
-      fetchData();
-    } catch (error) {
-      alert('Error al crear el mantenimiento o actualizar el estado de la solicitud. Inténtalo de nuevo más tarde.');
-      console.error('Error al crear el mantenimiento:', error);
-    }
   };
 
   const handleAsignarTecnico = async () => {
@@ -181,13 +151,13 @@ function HistorialMantenimiento() {
             ))
           ) : (
             <tr>
-              <td colSpan="8">No hay historial disponible</td>
+              <td colSpan="7">No hay historial disponible</td>
             </tr>
           )}
         </tbody>
       </table>
 
-      <h2>{selectedSolicitudId ? 'Asignar Técnico' : 'Crear Mantenimiento'}</h2>
+      <h2>Asignar Técnico</h2>
       <input
         type="text"
         value={formData.descripcion}
@@ -220,11 +190,7 @@ function HistorialMantenimiento() {
           </option>
         ))}
       </select>
-      {selectedSolicitudId ? (
-        <button onClick={handleAsignarTecnico}>Asignar Técnico</button>
-      ) : (
-        <button onClick={handleCrearMantenimiento}>Crear Mantenimiento</button>
-      )}
+      <button onClick={handleAsignarTecnico}>Asignar Técnico</button>
     </div>
   );
 }
