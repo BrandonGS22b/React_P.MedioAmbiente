@@ -6,11 +6,13 @@ import '../../App.css';
 
 function HistorialMantenimiento() {
   const [historial, setHistorial] = useState([]);
+  const [asignaciones, setAsignaciones] = useState([]);
   const [formData, setFormData] = useState({
     descripcion: '',
     gastos: '',
     diasDuracion: '',
     tecnicoAsignado: '',
+    estado: '', // Añadimos el estado aquí
   });
   const [selectedSolicitudId, setSelectedSolicitudId] = useState(null);
   const [tecnicos, setTecnicos] = useState([]);
@@ -19,29 +21,30 @@ function HistorialMantenimiento() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    setError(null); // Reseteamos el error en cada carga
-    console.log('Fetching data...'); // Log de inicio de la carga de datos
+    setError(null);
+    console.log('Fetching data...');
     try {
-      const [solicitudesResponse, tecnicosResponse] = await Promise.all([
+      const [solicitudesResponse, tecnicosResponse, asignacionesResponse] = await Promise.all([
         SolicitudService.obtenerSolicitudes(),
         authService.getTechnicians(),
+        GestionTecnicoService.obtenerTodasAsignaciones(),
       ]);
-
-      console.log('Solicitudes Response:', solicitudesResponse); // Log de respuesta de solicitudes
-      console.log('Técnicos Response:', tecnicosResponse); // Log de respuesta de técnicos
-
-      const asignacionResponse = await GestionTecnicoService.obtenerTodasAsignaciones();
-
-      console.log('Asignaciones Response:', asignacionResponse); // Log de respuesta de asignaciones
-
-      if (!Array.isArray(solicitudesResponse.data) || !Array.isArray(asignacionResponse)) {
-        throw new Error('Los datos de solicitudes o mantenimientos no son válidos');
+  
+      console.log('Solicitudes Response:', solicitudesResponse);
+      console.log('Técnicos Response:', tecnicosResponse);
+      console.log('Asignaciones Response:', asignacionesResponse);
+  
+      if (!Array.isArray(asignacionesResponse)) {
+        throw new Error('La respuesta de asignaciones no es un array válido');
       }
-
+  
+      setAsignaciones(asignacionesResponse);  // Guardamos las asignaciones en el estado
+  
+      // Aquí continúa el resto de la lógica de formateo
       const formattedHistorial = solicitudesResponse.data
-        .filter((solicitud) => solicitud.estado === 'Revisado')
+        .filter((solicitud) => ["Revisado", "En proceso", "Solucionado"].includes(solicitud.estado))
         .map((solicitud) => {
-          const mantenimiento = asignacionResponse.find(mant => mant.solicitudId === solicitud._id) || {};
+          const mantenimiento = asignacionesResponse.find(mant => mant.solicitudId === solicitud._id) || {};
           return {
             ...solicitud,
             gastos: mantenimiento.gastos || 'N/A',
@@ -49,9 +52,9 @@ function HistorialMantenimiento() {
             tecnico: tecnicosResponse.find(tecnico => tecnico._id === mantenimiento.tecnicoId)?.name || 'No asignado',
           };
         });
-
-      console.log('Historial Formateado:', formattedHistorial); // Log del historial formateado
-
+  
+      console.log('Historial Formateado:', formattedHistorial);
+  
       setHistorial(formattedHistorial);
       setTecnicos(tecnicosResponse);
     } catch (error) {
@@ -72,20 +75,66 @@ function HistorialMantenimiento() {
       gastos: '',
       diasDuracion: '',
       tecnicoAsignado: '',
+      estado: '', // Reseteamos el estado
     });
     setSelectedSolicitudId(null);
     console.log('Formulario reiniciado'); // Log al reiniciar el formulario
   };
 
-  const handleSelectSolicitud = (solicitud) => {
-    console.log('Solicitud seleccionada:', solicitud); // Log de solicitud seleccionada
-    setSelectedSolicitudId(solicitud._id);
-    setFormData({
-      descripcion: solicitud.descripcion || '',
-      gastos: solicitud.gastos || '',
-      diasDuracion: solicitud.diasDuracion || '',
-      tecnicoAsignado: solicitud.tecnico || '',
-    });
+  const handleSelectSolicitud = (solicitud, asignaciones) => {
+    console.log('Solicitud seleccionada:', solicitud._id);
+    console.log('Asignaciones disponibles:', asignaciones);
+  
+    if (Array.isArray(asignaciones) && asignaciones.length > 0) {
+      const asignacion = asignaciones.find((item) => item.solicitudId === solicitud._id);
+  
+      console.log('Asignación encontrada:', asignacion);
+  
+      if (asignacion) {
+        setSelectedSolicitudId(asignacion._id);
+      } else {
+        console.error('No se encontró la asignación para la solicitud:', solicitud._id);
+        setSelectedSolicitudId(null);
+      }
+  
+      setFormData({
+        id: asignacion ? asignacion._id : '',
+        descripcion: solicitud.descripcion || '',
+        gastos: asignacion ? asignacion.gastos : '',
+        diasDuracion: asignacion ? asignacion.diasDuracion : '',
+        tecnicoAsignado: asignacion ? asignacion.tecnicoId : '',
+        estado: solicitud.estado || '',
+      });
+    } else {
+      console.error('asignaciones no es un array válido o está vacío');
+    }
+  };
+  
+  const handleEditSolicitud = async () => {
+    if (!selectedSolicitudId) {
+      alert('Selecciona una solicitud para editar.');
+      return;
+    }
+  
+    try {
+      // Actualizamos los datos de la asignación
+      await GestionTecnicoService.cargarEvidencia(selectedSolicitudId, {
+        tecnicoId: formData.tecnicoAsignado, // Actualizamos el técnico
+        descripcion: formData.descripcion, // Actualizamos la descripción
+        gastos: parseInt(formData.gastos, 10), // Actualizamos los gastos
+        diasDuracion: parseInt(formData.diasDuracion, 10), // Actualizamos los días de duración
+      });
+  
+      // También actualizamos el estado de la solicitud
+      await SolicitudService.actualizarSolicitud(selectedSolicitudId, { estado: formData.estado });
+  
+      alert('Datos de la solicitud actualizados correctamente');
+      resetForm(); // Limpiar el formulario
+      fetchData(); // Volver a cargar los datos
+    } catch (error) {
+      alert('Error al actualizar la solicitud. Inténtalo de nuevo más tarde.');
+      console.error('Error:', error);
+    }
   };
 
   const handleAsignarTecnico = async () => {
@@ -135,29 +184,31 @@ function HistorialMantenimiento() {
           </tr>
         </thead>
         <tbody>
-          {historial.length > 0 ? (
-            historial.map((solicitud) => (
-              <tr key={solicitud._id}>
-                <td>{solicitud._id}</td>
-                <td>{solicitud.descripcion}</td>
-                <td>{solicitud.estado}</td>
-                <td>{solicitud.tecnico}</td>
-                <td>{solicitud.gastos}</td>
-                <td>{solicitud.diasDuracion}</td>
-                <td>
-                  <button onClick={() => handleSelectSolicitud(solicitud)}>Editar</button>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="7">No hay historial disponible</td>
-            </tr>
-          )}
-        </tbody>
+  {historial.length > 0 ? (
+    historial.map((solicitud) => (
+      <tr key={solicitud._id}>
+        <td>{solicitud._id}</td>
+        <td>{solicitud.descripcion}</td>
+        <td>{solicitud.estado}</td>
+        <td>{solicitud.tecnico}</td>
+        <td>{solicitud.gastos}</td>
+        <td>{solicitud.diasDuracion}</td>
+        <td>
+          {/* Pasamos asignaciones al hacer clic */}
+          <button onClick={() => handleSelectSolicitud(solicitud, asignaciones)}>Asignar</button>
+          <button onClick={() => handleSelectSolicitud(solicitud, asignaciones)}>Editar</button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="7">No hay historial disponible</td>
+    </tr>
+  )}
+</tbody>
       </table>
 
-      <h2>Asignar Técnico</h2>
+      <h2>Editar Solicitud</h2>
       <input
         type="text"
         value={formData.descripcion}
@@ -190,6 +241,19 @@ function HistorialMantenimiento() {
           </option>
         ))}
       </select>
+
+      {/* Dropdown para seleccionar el estado */}
+      <select
+        value={formData.estado}
+        onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+      >
+        <option value="">Seleccionar Estado</option>
+        <option value="Revisado">Revisado</option>
+        <option value="En proceso">En proceso</option>
+        <option value="Solucionado">Solucionado</option>
+      </select>
+
+      <button onClick={handleEditSolicitud}>Editar Solicitud</button>
       <button onClick={handleAsignarTecnico}>Asignar Técnico</button>
     </div>
   );
