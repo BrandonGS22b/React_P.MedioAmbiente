@@ -9,10 +9,11 @@ const LoginForm = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth(); // Usa el contexto de autenticación
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+    setLoading(true); // Inicia la carga
     try {
       const response = await authService.login(email, password); // Utiliza el servicio para iniciar sesión
 
@@ -41,6 +42,8 @@ const LoginForm = () => {
     } catch (err) {
       console.error('Login error:', err);
       setError('Error logging in');
+    } finally {
+      setLoading(false); // Detiene la carga
     }
   };
 
@@ -59,7 +62,9 @@ const LoginForm = () => {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
         />
-        <button type="submit">Login</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Loading...' : 'Login'}
+        </button>
         {error && <p>{error}</p>}
       </form>
     </div>
