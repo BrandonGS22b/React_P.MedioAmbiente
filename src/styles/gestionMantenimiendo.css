@@ -1,0 +1,147 @@
+/* Estilos generales */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7fb;
+    color: #333;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Contenedor principal */
+  .historial-mantenimiento {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 1s ease-in-out;
+  }
+  
+  /* Título principal */
+  h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 2.5rem;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Tabla de historial */
+  .historial-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .historial-table th,
+  .historial-table td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .historial-table th {
+    background-color: #3498db;
+    color: #fff;
+    font-size: 1.1rem;
+  }
+  
+  .historial-table tbody tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  /* Botones de acción */
+  button {
+    background-color: #3498db;
+    color: #fff;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 0.9rem;
+    margin: 5px;
+  }
+  
+  button:hover {
+    background-color: #2980b9;
+  }
+  
+  button:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+  }
+  
+  /* Formularios */
+  form {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  form label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  
+  form input,
+  form select,
+  form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+  }
+  
+  form input:focus,
+  form select:focus,
+  form textarea:focus {
+    border-color: #3498db;
+    outline: none;
+  }
+  
+  form textarea {
+    height: 120px;
+    resize: vertical;
+  }
+  
+  /* Botones del formulario */
+  form button {
+    background-color: #2ecc71;
+    font-size: 1rem;
+    padding: 12px;
+    border-radius: 5px;
+    width: 100%;
+  }
+  
+  form button[type='button']:nth-child(2) {
+    background-color: #f39c12;
+  }
+  
+  form button[type='button']:nth-child(3) {
+    background-color: #e74c3c;
+  }
+  
+  /* Animación de aparición */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  

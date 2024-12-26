@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../context/useAuth";
-import "../../App.css";
 import Home from "../home/home";
 import Usuarios from "../Auth/Usuarios";
 import GestionSolicitud from "../GestionSolicitud/GestionSolicitud";
 import GestionMantenimiento from "../GestionMantenimiento/HistorialMantenimiento";
 import HistorialSolicitud from "../HistorialSolicitud/HistorialSolicitud";
 import GestionTecnico from "../GestionTecnico/GestionTecnico";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faUser, faFileAlt, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHome, faUser, faFileAlt, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import "./../../styles/dashboard.css"; // Importar CSS específico
 
 function Dashboard() {
   const { user, logout } = useAuth();
@@ -19,7 +19,7 @@ function Dashboard() {
 
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
@@ -43,95 +43,106 @@ function Dashboard() {
     }
   };
 
-  console.log('Tiempo restante para la caducación: ' + timeLeft);
-
   return (
     <>
-      {/* Barra superior */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <div className="container-fluid">
-          <img src="/path/to/logo.png" alt="Logo" style={{ width: '40px', height: '40px' }} className="me-2" />
-          <span className="navbar-brand">Mi Dashboard</span>
-          <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
-              {user && user.profilePicture && (
+      {/* Barra superior con el contenido principal dentro */}
+      <nav className="navbar navbar-dark bg-primary fixed-top">
+        <div className="container-fluid d-flex align-items-center">
+          <img
+            src="/path/to/logo.png"
+            alt="Logo"
+            className="me-3"
+            style={{ width: "40px", height: "40px" }}
+          />
+          <span className="navbar-brand mb-0 h1">Mi Dashboard</span>
+          {user && (
+            <div className="d-flex align-items-center ms-auto">
+              <div className="text-white me-3">
+                <span>Bienvenido, {user.name}</span>
+                <br />
+                <span>Rol: {user.role}</span>
+              </div>
+              {user.profilePicture && (
                 <img
                   src={user.profilePicture}
                   alt="Perfil"
                   className="rounded-circle"
-                  style={{ width: '30px', height: '30px' }}
+                  style={{ width: "40px", height: "40px" }}
                 />
               )}
-            </li>
-          </ul>
+            </div>
+          )}
         </div>
       </nav>
 
-      <div className="d-flex" id="wrapper" style={{ marginTop: '56px', height: '100vh' }}>
-        {/* Sidebar */}
-        <div id="sidebar-wrapper" className="bg-light border-right" style={{ height: '100vh', position: 'fixed' }}>
-          <div className="sidebar-heading">Mi Dashboard</div>
+      <div className="d-flex flex-column" id="wrapper" style={{ marginTop: "56px" }}>
+        {/* Sidebar con el contenido */}
+        <div id="sidebar-wrapper" className="bg-light border-right">
+          <div className="sidebar-heading text-center py-4">
+            <h4>Mi Dashboard</h4>
+          </div>
           <ul className="list-group list-group-flush">
             <li className="list-group-item">
-              <button onClick={() => handleContentChange(<Home />)} className="btn btn-light w-100">
+              <button onClick={() => handleContentChange(<Home />)} className="btn btn-light w-100 text-start">
                 <FontAwesomeIcon icon={faHome} /> Inicio
               </button>
             </li>
             <li className="list-group-item">
-              <button onClick={() => handleContentChange(<Usuarios />)} className="btn btn-light w-100">
+              <button onClick={() => handleContentChange(<Usuarios />)} className="btn btn-light w-100 text-start">
                 <FontAwesomeIcon icon={faUser} /> Usuarios
               </button>
             </li>
-
-
-
             <li className="list-group-item">
-              <button onClick={() => handleContentChange(<GestionSolicitud />)} className="btn btn-light w-100">
-                <FontAwesomeIcon icon={faFileAlt} /> Gestion Solicitudes
+              <button
+                onClick={() => handleContentChange(<GestionSolicitud />)}
+                className="btn btn-light w-100 text-start"
+              >
+                <FontAwesomeIcon icon={faFileAlt} /> Gestión Solicitudes
               </button>
             </li>
-
-
             <li className="list-group-item">
-              <button onClick={() => handleContentChange(<GestionMantenimiento/>)} className="btn btn-light w-100">
-                <FontAwesomeIcon icon={faFileAlt} />    Gestion de mantenimiento
+              <button
+                onClick={() => handleContentChange(<GestionMantenimiento />)}
+                className="btn btn-light w-100 text-start"
+              >
+                <FontAwesomeIcon icon={faFileAlt} /> Gestión Mantenimiento
               </button>
             </li>
-
             <li className="list-group-item">
-              <button onClick={() => handleContentChange(<HistorialSolicitud/>)} className="btn btn-light w-100">
-                <FontAwesomeIcon icon={faFileAlt} />    Historial de Solicitudes
+              <button
+                onClick={() => handleContentChange(<HistorialSolicitud />)}
+                className="btn btn-light w-100 text-start"
+              >
+                <FontAwesomeIcon icon={faFileAlt} /> Historial Solicitudes
               </button>
             </li>
-
             <li className="list-group-item">
-              <button onClick={() => handleContentChange(<GestionTecnico/>)} className="btn btn-light w-100">
-                <FontAwesomeIcon icon={faFileAlt} />    Gestion Tecnicos
+              <button
+                onClick={() => handleContentChange(<GestionTecnico />)}
+                className="btn btn-light w-100 text-start"
+              >
+                <FontAwesomeIcon icon={faFileAlt} /> Gestión Técnicos
               </button>
             </li>
-
-
             <li className="list-group-item">
-              <button onClick={handleLogout} className="btn btn-danger w-100">
-                <FontAwesomeIcon icon={faSignOutAlt} /> Cerrar sesión
+              <button onClick={handleLogout} className="btn btn-danger w-100 text-start">
+                <FontAwesomeIcon icon={faSignOutAlt} /> Cerrar Sesión
               </button>
             </li>
           </ul>
         </div>
 
-        {/* Contenido principal */}
-        <div id="page-content-wrapper" className="container-fluid" style={{ marginLeft: '250px', overflowY: 'auto', height: '100vh', padding: '20px' }}>
+        {/* Contenido principal dentro de la barra superior */}
+        <div id="page-content-wrapper" className="container-fluid" style={{ marginLeft: "250px", padding: "20px" }}>
           {user ? (
-            <>
-              <h1 className="mt-4">Bienvenido, {user.name}</h1>
-              <h2 className="mt-4">Rol: {user.role}</h2>
+            <div className="text-center">
               <div className="mt-4">{content}</div>
               {timeLeft !== null && (
-                <p className="text-muted">Tiempo restante para la expiración del token: {timeLeft} segundos</p>
+                <p className="text-muted mt-3">Tiempo restante para la expiración del token: {timeLeft} segundos</p>
               )}
-            </>
+            </div>
           ) : (
-            <h1 className="mt-4">Cargando...</h1>
+            <h1 className="mt-4 text-center">Cargando...</h1>
           )}
         </div>
       </div>

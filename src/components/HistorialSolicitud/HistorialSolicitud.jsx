@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import SolicitudService from '../../service/GestionSolicitud.service';
 import authService from '../../service/auth.service';
 import GestionTecnicoService from '../../service/GestionTecnicos.service';
+import "./../../styles/historialSolicitudes.css";
 
 function HistorialSolicitud() {
   const [solicitudes, setSolicitudes] = useState([]);

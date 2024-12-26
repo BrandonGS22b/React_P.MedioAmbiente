@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import SolicitudService from '../../service/GestionSolicitud.service';
 import GestionTecnicoService from '../../service/GestionTecnicos.service';
 import authService from '../../service/auth.service';
-import '../../App.css';
+import "./../../styles/gestionMantenimiendo.css";
 
 function HistorialMantenimiento() {
   const [historial, setHistorial] = useState([]);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SolicitudService from '../../service/GestionSolicitud.service';
 import authService from '../../service/auth.service';
-
+import "./../../styles/gestionsolicitud.css";
  // Importa el archivo CSS
 
 function GestionSolicitud() {

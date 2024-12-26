@@ -1,0 +1,91 @@
+/* Estilos generales */
+.historial-solicitud {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .historial-solicitud h1 {
+    text-align: center;
+    color: #333;
+    font-size: 2em;
+  }
+  
+  .historial-solicitud p {
+    text-align: center;
+    font-size: 1.1em;
+    color: #666;
+    margin-bottom: 20px;
+  }
+  
+  .historial-solicitud .historial-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .historial-solicitud .historial-table th,
+  .historial-solicitud .historial-table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  .historial-solicitud .historial-table th {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .historial-solicitud .historial-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .historial-solicitud .historial-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .historial-solicitud .historial-table img {
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Mensajes de carga y error */
+  .historial-solicitud p {
+    font-size: 1.2em;
+    color: #444;
+  }
+  
+  .historial-solicitud .error-message {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1.2em;
+    margin-top: 30px;
+  }
+  
+  /* Estilo para las celdas con imágenes */
+  .historial-solicitud .historial-table img {
+    max-width: 100px;
+    height: auto;
+    border-radius: 8px;
+    margin: 5px;
+  }
+  
+  /* Estilo de la tabla para celulares (responsive) */
+  @media (max-width: 768px) {
+    .historial-solicitud .historial-table {
+      font-size: 0.9em;
+    }
+  
+    .historial-solicitud .historial-table th,
+    .historial-solicitud .historial-table td {
+      padding: 8px;
+    }
+  
+    .historial-solicitud .historial-table img {
+      width: 70px;
+      height: auto;
+    }
+  }
+  
