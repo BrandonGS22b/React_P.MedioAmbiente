@@ -63,22 +63,34 @@ const UserService = async (id) => {
 };
 
 // Función para crear un usuario con role incluido
-const createUsuario = async ({ name, email, password, role }) => {
+// Función para crear un nuevo usuario con role incluido
+const createUsuario = async ({ name, email, password, role, direccion, telefono, tipodedocumento, documento }) => {
   const token = localStorage.getItem('token');
+  console.log("Token recuperado:", token);
+
   if (!token) {
     throw new Error('Token no disponible');
   }
 
+  const payload = { name, email, password, role, direccion, telefono, tipodedocumento, documento };
+  console.log("Datos enviados al servidor:", payload);
+
   try {
-    const response = await axios.post(`${API_URL}/register`, { name, email, password, role }, {
+    const response = await axios.post(`${API_URL}/register`, payload, {
       headers: {
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
       withCredentials: true,
     });
-    return response.data;
+    console.log("Respuesta del servidor:", response); // Log completo de la respuesta
+    if (response.data) {
+      return response.data;
+    } else {
+      throw new Error("Respuesta del servidor no válida");
+    }
   } catch (error) {
-    console.error('Error creando usuario:', error.response ? error.response.data : error.message);
+    console.error('Error creando usuario:', error.response || error.message);
     throw error;
   }
 };

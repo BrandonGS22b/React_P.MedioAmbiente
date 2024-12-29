@@ -16,9 +16,10 @@ function Usuarios() {
   const [telefono, setTelefono] = useState("");
   const [tipodedocumento, setTipoDeDocumento] = useState("");
   const [cedula, setCedula] = useState("");
+  const [documento, setDocumento] = useState(""); // Campo de documento
   const [editando, setEditando] = useState(false);
   const [usuarioId, setUsuarioId] = useState(null);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
   const [filtro, setFiltro] = useState("");
   const [mostrarLista, setMostrarLista] = useState(true);
 
@@ -37,28 +38,30 @@ function Usuarios() {
   }, [user]);
 
   const handleAgregarOActualizarUsuario = async () => {
-    // Validaciones para asegurarse que todos los campos están llenos
-    if (!nombre || !email || (!editando && !password) || !role || !direccion || !telefono || !tipodedocumento || !cedula) {
+    if (!nombre || !email || (!editando && !password) || !role || !direccion || !telefono || !tipodedocumento || !cedula || !documento) {
       setError("Todos los campos son obligatorios.");
       return;
     }
 
-    // Validación de formato de correo electrónico
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(email)) {
       setError("El email no es válido.");
       return;
     }
 
-    setError(""); // Limpiar error si pasa la validación
+    const telefonoRegex = /^[0-9]{10}$/;
+    if (telefono && !telefonoRegex.test(telefono)) {
+      setError("El teléfono debe tener 10 dígitos.");
+      return;
+    }
 
-    // Datos a enviar (se agregan los campos requeridos)
-    const dataToSubmit = { name: nombre, email, role, direccion, telefono, tipodedocumento, cedula };
-    if (password) dataToSubmit.password = password; // Agregar password solo si no está vacío
+    setError(null); // Limpiar el error si pasa la validación
+
+    const dataToSubmit = { name: nombre, email, role, direccion, telefono, tipodedocumento, documento, cedula };
+    if (password) dataToSubmit.password = password;
 
     try {
       if (editando) {
-        // Si estamos editando un usuario
         await authService.updateUsuario(usuarioId, dataToSubmit);
         setUsuarios((prev) =>
           prev.map((usuario) =>
@@ -66,11 +69,11 @@ function Usuarios() {
           )
         );
       } else {
-        // Si estamos creando un nuevo usuario
         const nuevoUsuario = await authService.createUsuario(dataToSubmit);
-        setUsuarios((prev) => [...prev, { ...nuevoUsuario, role }]);
+        // Asegúrate de que el nuevo usuario tenga el formato adecuado para agregarlo al estado
+        setUsuarios((prev) => [...prev, nuevoUsuario]);
       }
-      limpiarFormulario(); // Limpiar el formulario después de agregar/actualizar
+      limpiarFormulario();
     } catch (error) {
       setError("Error procesando la solicitud.");
       console.error(error);
@@ -86,6 +89,7 @@ function Usuarios() {
     setTelefono("");
     setTipoDeDocumento("");
     setCedula("");
+    setDocumento(""); // Limpiar el campo documento
     setEditando(false);
     setUsuarioId(null);
   };
@@ -153,6 +157,12 @@ function Usuarios() {
               value={cedula}
               onChange={(e) => setCedula(e.target.value)}
             />
+            <input
+              type="text"
+              placeholder="Documento"
+              value={documento}
+              onChange={(e) => setDocumento(e.target.value)} // Campo para documento
+            />
             <select
               value={tipodedocumento}
               onChange={(e) => setTipoDeDocumento(e.target.value)}
@@ -168,19 +178,17 @@ function Usuarios() {
               <option value="admin">Admin</option>
               <option value="tecnico">Técnico</option>
             </select>
-            <button onClick={handleAgregarOActualizarUsuario} className="primary-button">
-              {editando ? "Actualizar Usuario" : "Agregar Usuario"}
-            </button>
-            {error && <p className="error-message">{error}</p>}
+            <button onClick={handleAgregarOActualizarUsuario}>Guardar</button>
           </>
         )}
+
+        {error && <div className="error">{error}</div>}
       </div>
 
       {mostrarLista && (
-        <table className="usuarios-table">
+        <table>
           <thead>
             <tr>
-              <th>ID</th>
               <th>Nombre</th>
               <th>Email</th>
               <th>Rol</th>
@@ -188,31 +196,24 @@ function Usuarios() {
             </tr>
           </thead>
           <tbody>
-            {filteredUsuarios.length > 0 ? (
-              filteredUsuarios.map((usuario) => (
-                <tr key={usuario.id}>
-                  <td>{usuario.id}</td>
-                  <td>{usuario.name}</td>
-                  <td>{usuario.email}</td>
-                  <td>{usuario.role}</td>
-                  <td>
-                    <button onClick={() => console.log(usuario)} className="view-button">
-                      <FontAwesomeIcon icon={faEye} /> Ver
-                    </button>
-                    <button
-                      onClick={() => console.log("Deshabilitar", usuario.id)}
-                      className="disable-button"
-                    >
-                      <FontAwesomeIcon icon={faBan} /> Deshabilitar
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5">No hay usuarios disponibles.</td>
+            {filteredUsuarios.map((usuario) => (
+              <tr key={usuario.id}>
+                <td>{usuario.name}</td>
+                <td>{usuario.email}</td>
+                <td>{usuario.role}</td>
+                <td>
+                  <button>
+                    <FontAwesomeIcon icon={faEye} /> Ver
+                  </button>
+                  <button>
+                    <FontAwesomeIcon icon={faBan} /> Desactivar
+                  </button>
+                  <button>
+                    <FontAwesomeIcon icon={faListAlt} /> Detalles
+                  </button>
+                </td>
               </tr>
-            )}
+            ))}
           </tbody>
         </table>
       )}
