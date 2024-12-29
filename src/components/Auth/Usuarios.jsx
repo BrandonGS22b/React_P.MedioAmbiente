@@ -168,8 +168,8 @@ function Usuarios() {
               onChange={(e) => setTipoDeDocumento(e.target.value)}
             >
               <option value="">Seleccione Tipo de Documento</option>
-              <option value="Cédula">Cédula</option>
-              <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
+              <option value="CC">Cédula</option>
+              <option value="TI">Tarjeta de Identidad</option>
               <option value="Pasaporte">Pasaporte</option>
               <option value="Cédula de Extranjería">Cédula de Extranjería</option>
             </select>
