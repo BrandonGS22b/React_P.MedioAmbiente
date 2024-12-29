@@ -38,45 +38,57 @@ function Usuarios() {
   }, [user]);
 
   const handleAgregarOActualizarUsuario = async () => {
-    if (!nombre || !email || (!editando && !password) || !role || !direccion || !telefono || !tipodedocumento || !cedula || !documento) {
+    if (!nombre || !email || (!editando && !password) || !role || !direccion || !telefono || !tipodedocumento || !documento) {
       setError("Todos los campos son obligatorios.");
       return;
     }
-
+  
     const emailRegex = /\S+@\S+\.\S+/;
+    const telefonoRegex = /^[0-9]{10}$/;
+    const documentoRegex = /^[0-9]{5,10}$/;
+  
     if (!emailRegex.test(email)) {
       setError("El email no es válido.");
       return;
     }
-
-    const telefonoRegex = /^[0-9]{10}$/;
-    if (telefono && !telefonoRegex.test(telefono)) {
+    if (!telefonoRegex.test(telefono)) {
       setError("El teléfono debe tener 10 dígitos.");
       return;
     }
-
+    if (!documentoRegex.test(documento)) {
+      setError("El documento debe contener entre 5 y 10 dígitos.");
+      return;
+    }
+  
     setError(null); // Limpiar el error si pasa la validación
-
-    const dataToSubmit = { name: nombre, email, role, direccion, telefono, tipodedocumento, documento, cedula };
-    if (password) dataToSubmit.password = password;
-
+  
+    const dataToSubmit = {
+      name: nombre,
+      email,
+      password,
+      role,
+      direccion,
+      telefono: parseInt(telefono, 10), // Convertir a número
+      tipodedocumento,
+      documento: parseInt(documento, 10), // Convertir a número
+    };
+  
     try {
       if (editando) {
         await authService.updateUsuario(usuarioId, dataToSubmit);
         setUsuarios((prev) =>
           prev.map((usuario) =>
-            usuario.id === usuarioId ? { ...usuario, ...dataToSubmit } : usuario
+            usuario._id === usuarioId ? { ...usuario, ...dataToSubmit } : usuario
           )
         );
       } else {
         const nuevoUsuario = await authService.createUsuario(dataToSubmit);
-        // Asegúrate de que el nuevo usuario tenga el formato adecuado para agregarlo al estado
-        setUsuarios((prev) => [...prev, nuevoUsuario]);
+        setUsuarios((prev) => [...prev, nuevoUsuario.user]);
       }
       limpiarFormulario();
     } catch (error) {
-      setError("Error procesando la solicitud.");
-      console.error(error);
+      console.error('Error al procesar solicitud:', error.response?.data || error.message);
+      setError('Error procesando la solicitud.');
     }
   };
 
@@ -114,8 +126,12 @@ function Usuarios() {
             value={filtro}
             onChange={handleFilterChange}
           />
-          <button className="btn btn-success me-2 m-2" onClick={() => setMostrarLista(!mostrarLista)}>
-            <FontAwesomeIcon icon={faListAlt} /> {mostrarLista ? "Agregar Usuario" : "Ver Lista"}
+          <button
+            className="btn btn-success me-2 m-2"
+            onClick={() => setMostrarLista(!mostrarLista)}
+          >
+            <FontAwesomeIcon icon={faListAlt} />{" "}
+            {mostrarLista ? "Agregar Usuario" : "Ver Lista"}
           </button>
         </div>
 
@@ -135,7 +151,9 @@ function Usuarios() {
             />
             <input
               type="password"
-              placeholder={editando ? "Nueva Contraseña (Opcional)" : "Contraseña"}
+              placeholder={
+                editando ? "Nueva Contraseña (Opcional)" : "Contraseña"
+              }
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -146,13 +164,13 @@ function Usuarios() {
               onChange={(e) => setDireccion(e.target.value)}
             />
             <input
-              type="text"
+              type="number"
               placeholder="Teléfono"
               value={telefono}
               onChange={(e) => setTelefono(e.target.value)}
             />
             <input
-              type="text"
+              type="number"
               placeholder="Número de Cédula"
               value={cedula}
               onChange={(e) => setCedula(e.target.value)}
@@ -171,7 +189,9 @@ function Usuarios() {
               <option value="CC">Cédula</option>
               <option value="TI">Tarjeta de Identidad</option>
               <option value="Pasaporte">Pasaporte</option>
-              <option value="Cédula de Extranjería">Cédula de Extranjería</option>
+              <option value="Cédula de Extranjería">
+                Cédula de Extranjería
+              </option>
             </select>
             <select value={role} onChange={(e) => setRole(e.target.value)}>
               <option value="usuario">Usuario</option>
