@@ -205,6 +205,55 @@ const getCurrentUser = () => {
   const user = localStorage.getItem('user');
   return user ? JSON.parse(user) : null;
 };
+const disableUser = async (id) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Token no disponible');
+  }
+
+  try {
+    const response = await axios.patch(
+      `${API_URL}/users/${id}/disable`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error desactivando usuario:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+// Función para activar un usuario
+const enableUser = async (id) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Token no disponible');
+  }
+
+  try {
+    const response = await axios.patch(
+      `${API_URL}/users/${id}/enable`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error activando usuario:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
 
 // Exporta todas las funciones del servicio de autenticación
 const authService = {
@@ -218,7 +267,9 @@ const authService = {
   deleteUsuario,
   UserService,
   getTechnicians,
-  assignTechnician
+  assignTechnician,
+  disableUser,
+  enableUser,
 };
 
 export default authService;

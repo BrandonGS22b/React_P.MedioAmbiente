@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import useAuth from "../../context/useAuth";
 import authService from "../../service/auth.service";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
-import "../../styles/usuario.css"; // Importa el archivo CSS
+import { faEye, faBan, faListAlt } from "@fortawesome/free-solid-svg-icons";
+import "../../styles/usuario.css";
 
 function Usuarios() {
   const { user } = useAuth();
@@ -12,9 +12,15 @@ function Usuarios() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("usuario");
+  const [direccion, setDireccion] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [tipodedocumento, setTipoDeDocumento] = useState("");
+  const [cedula, setCedula] = useState("");
   const [editando, setEditando] = useState(false);
   const [usuarioId, setUsuarioId] = useState(null);
   const [error, setError] = useState("");
+  const [filtro, setFiltro] = useState("");
+  const [mostrarLista, setMostrarLista] = useState(true);
 
   useEffect(() => {
     const fetchUsuarios = async () => {
@@ -31,36 +37,40 @@ function Usuarios() {
   }, [user]);
 
   const handleAgregarOActualizarUsuario = async () => {
-    if (!nombre || !email || (!editando && !password) || !role) {
+    // Validaciones para asegurarse que todos los campos están llenos
+    if (!nombre || !email || (!editando && !password) || !role || !direccion || !telefono || !tipodedocumento || !cedula) {
       setError("Todos los campos son obligatorios.");
       return;
     }
 
+    // Validación de formato de correo electrónico
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(email)) {
       setError("El email no es válido.");
       return;
     }
 
-    setError("");
-    const dataToUpdate = { name: nombre, email, role };
+    setError(""); // Limpiar error si pasa la validación
 
-    if (editando && password) dataToUpdate.password = password;
-    else if (!editando && password) dataToUpdate.password = password;
+    // Datos a enviar (se agregan los campos requeridos)
+    const dataToSubmit = { name: nombre, email, role, direccion, telefono, tipodedocumento, cedula };
+    if (password) dataToSubmit.password = password; // Agregar password solo si no está vacío
 
     try {
       if (editando) {
-        await authService.updateUsuario(usuarioId, dataToUpdate);
+        // Si estamos editando un usuario
+        await authService.updateUsuario(usuarioId, dataToSubmit);
         setUsuarios((prev) =>
           prev.map((usuario) =>
-            usuario.id === usuarioId ? { ...usuario, ...dataToUpdate } : usuario
+            usuario.id === usuarioId ? { ...usuario, ...dataToSubmit } : usuario
           )
         );
       } else {
-        const nuevoUsuario = await authService.createUsuario(dataToUpdate);
+        // Si estamos creando un nuevo usuario
+        const nuevoUsuario = await authService.createUsuario(dataToSubmit);
         setUsuarios((prev) => [...prev, { ...nuevoUsuario, role }]);
       }
-      limpiarFormulario();
+      limpiarFormulario(); // Limpiar el formulario después de agregar/actualizar
     } catch (error) {
       setError("Error procesando la solicitud.");
       console.error(error);
@@ -72,98 +82,140 @@ function Usuarios() {
     setEmail("");
     setPassword("");
     setRole("usuario");
+    setDireccion("");
+    setTelefono("");
+    setTipoDeDocumento("");
+    setCedula("");
     setEditando(false);
     setUsuarioId(null);
   };
 
-  const handleEditarUsuario = (usuario) => {
-    setNombre(usuario.name);
-    setEmail(usuario.email);
-    setRole(usuario.role);
-    setUsuarioId(usuario.id);
-    setEditando(true);
+  const handleFilterChange = (event) => {
+    setFiltro(event.target.value);
   };
 
-  const handleEliminarUsuario = async (id) => {
-    try {
-      await authService.deleteUsuario(id);
-      setUsuarios((prev) => prev.filter((usuario) => usuario.id !== id));
-    } catch (error) {
-      console.error("Error eliminando usuario:", error);
-    }
-  };
-
-  if (!user) {
-    return <p className="no-access">No tienes acceso a esta sección. Por favor, inicia sesión.</p>;
-  }
+  const filteredUsuarios = usuarios.filter((usuario) =>
+    usuario.name.toLowerCase().includes(filtro.toLowerCase())
+  );
 
   return (
     <div className="usuarios-container">
       <h1>Gestión de Usuarios</h1>
       <div className="form-container">
-        <input
-          type="text"
-          placeholder="Nombre"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder={editando ? "Nueva Contraseña (Opcional)" : "Contraseña"}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="usuario">Usuario</option>
-          <option value="admin">Admin</option>
-          <option value="tecnico">Técnico</option>
-        </select>
-        <button onClick={handleAgregarOActualizarUsuario} className="primary-button">
-          {editando ? "Actualizar Usuario" : "Agregar Usuario"}
-        </button>
+        <div className="d-flex justify-content-between mb-2">
+          <input
+            type="text"
+            className="form-control me-2 m-2"
+            placeholder="Buscar por nombre..."
+            value={filtro}
+            onChange={handleFilterChange}
+          />
+          <button className="btn btn-success me-2 m-2" onClick={() => setMostrarLista(!mostrarLista)}>
+            <FontAwesomeIcon icon={faListAlt} /> {mostrarLista ? "Agregar Usuario" : "Ver Lista"}
+          </button>
+        </div>
+
+        {!mostrarLista && (
+          <>
+            <input
+              type="text"
+              placeholder="Nombre"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder={editando ? "Nueva Contraseña (Opcional)" : "Contraseña"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Dirección"
+              value={direccion}
+              onChange={(e) => setDireccion(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Teléfono"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Número de Cédula"
+              value={cedula}
+              onChange={(e) => setCedula(e.target.value)}
+            />
+            <select
+              value={tipodedocumento}
+              onChange={(e) => setTipoDeDocumento(e.target.value)}
+            >
+              <option value="">Seleccione Tipo de Documento</option>
+              <option value="Cédula">Cédula</option>
+              <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
+              <option value="Pasaporte">Pasaporte</option>
+              <option value="Cédula de Extranjería">Cédula de Extranjería</option>
+            </select>
+            <select value={role} onChange={(e) => setRole(e.target.value)}>
+              <option value="usuario">Usuario</option>
+              <option value="admin">Admin</option>
+              <option value="tecnico">Técnico</option>
+            </select>
+            <button onClick={handleAgregarOActualizarUsuario} className="primary-button">
+              {editando ? "Actualizar Usuario" : "Agregar Usuario"}
+            </button>
+            {error && <p className="error-message">{error}</p>}
+          </>
+        )}
       </div>
-      {error && <p className="error-message">{error}</p>}
-      <table className="usuarios-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {usuarios.length > 0 ? (
-            usuarios.map((usuario) => (
-              <tr key={usuario.id}>
-                <td>{usuario.id}</td>
-                <td>{usuario.name}</td>
-                <td>{usuario.email}</td>
-                <td>{usuario.role}</td>
-                <td>
-                  <button onClick={() => handleEditarUsuario(usuario)} className="edit-button">
-                    <FontAwesomeIcon icon={faEdit} /> Editar
-                  </button>
-                  <button onClick={() => handleEliminarUsuario(usuario.id)} className="delete-button">
-                    <FontAwesomeIcon icon={faTrash} /> Eliminar
-                  </button>
-                </td>
-              </tr>
-            ))
-          ) : (
+
+      {mostrarLista && (
+        <table className="usuarios-table">
+          <thead>
             <tr>
-              <td colSpan="5">No hay usuarios disponibles.</td>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th>Acciones</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredUsuarios.length > 0 ? (
+              filteredUsuarios.map((usuario) => (
+                <tr key={usuario.id}>
+                  <td>{usuario.id}</td>
+                  <td>{usuario.name}</td>
+                  <td>{usuario.email}</td>
+                  <td>{usuario.role}</td>
+                  <td>
+                    <button onClick={() => console.log(usuario)} className="view-button">
+                      <FontAwesomeIcon icon={faEye} /> Ver
+                    </button>
+                    <button
+                      onClick={() => console.log("Deshabilitar", usuario.id)}
+                      className="disable-button"
+                    >
+                      <FontAwesomeIcon icon={faBan} /> Deshabilitar
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5">No hay usuarios disponibles.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
