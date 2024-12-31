@@ -1,0 +1,93 @@
+/* login.css */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    padding: 10px; /* Añadido padding para dispositivos móviles */
+  }
+  
+  .login-form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Se asegura de que ocupe el 100% del espacio disponible */
+    max-width: 400px; /* Se establece un ancho máximo para que no se expanda demasiado en pantallas grandes */
+    text-align: center;
+  }
+  
+  .login-form h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+  }
+  
+  .login-form input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .login-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .login-button:disabled {
+    background-color: #a5d6a7;
+  }
+  
+  .error-message {
+    color: red;
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  
+  /* Media Queries para hacerlo responsive */
+  @media (max-width: 768px) {
+    .login-form {
+      padding: 15px;
+      max-width: 90%; /* Reduce el max-width en dispositivos más pequeños */
+    }
+  
+    .login-form h2 {
+      font-size: 20px; /* Reduce el tamaño de la fuente en pantallas más pequeñas */
+    }
+  
+    .login-button {
+      font-size: 14px; /* Reduce el tamaño del botón */
+      padding: 12px; /* Aumenta el padding para hacerlo más accesible */
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .login-container {
+      padding: 0 10px; /* Asegura que no haya espacios innecesarios en pantallas muy pequeñas */
+    }
+  
+    .login-form {
+      max-width: 100%; /* El formulario ocupa el 100% del ancho disponible */
+      padding: 10px;
+    }
+  
+    .login-form h2 {
+      font-size: 18px; /* Reduce más el tamaño del título */
+    }
+  
+    .login-button {
+      font-size: 14px; /* Ajuste para pantallas muy pequeñas */
+      padding: 10px; /* Ajuste para hacer los botones más accesibles */
+    }
+  }
+  

@@ -1,148 +1,58 @@
-/* Estilo general */
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f0f8ff; /* Azul claro para el fondo */
-}
-
-#dashboard {
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-}
-
-/* Barra de navegación superior */
-.navbar {
-  height: 100px; /* Aumenta la altura de la barra superior */
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #0056b3; /* Azul oscuro */
-  color: white;
-  padding: 0 15px;
-  position: fixed;
-  width: 100%;
-  z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.navbar .container-fluid {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.navbar img {
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-}
-
-.navbar .navbar-brand {
-  margin-left: 10px;
-  font-size: 1.5rem; /* Aumenta el tamaño del texto */
-}
-
-/* Nombre y rol del usuario */
-.navbar .user-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: white;
-  font-size: 1rem;
-}
-
-.navbar .user-info span {
-  font-weight: bold;
-}
-
-/* Sidebar */
+/* Barra lateral para pantallas pequeñas */
 #sidebar-wrapper {
   width: 250px;
-  background-color: #e3f2fd; /* Azul claro */
+  background-color: #e3f2fd; 
   border-right: 1px solid #ddd;
   position: fixed;
-  top: 100px; /* Baja la sidebar para que quede alineada con la barra superior */
+  top: 100px; 
   bottom: 0;
   overflow-y: auto;
+  overflow-x: hidden; /* Evita el desbordamiento horizontal en pantallas pequeñas */
   transition: all 0.3s ease;
-}
-
-/* Botones y contenido de la sidebar */
-.list-group-item button {
-  background-color: transparent;
-  border: none;
-  width: 100%;
-  text-align: left;
-  padding: 10px 20px;
-  color: #333;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.list-group-item button:hover {
-  background-color: #bbdefb; /* Azul más claro */
-  color: #0056b3; /* Azul oscuro */
 }
 
 /* Contenido principal */
 #page-content-wrapper {
-  margin-left: 250px;
+  margin-left: 150px;
   padding: 20px;
   background-color: #f5f5f5;
-  height: calc(100vh - 100px); /* Ajusta el alto para tener en cuenta la barra superior */
+  height: calc(100vh - 100px); 
+  overflow-x: auto; /* Permite el desplazamiento horizontal si el contenido se desborda */
 }
 
-/* Estilos de los textos dentro del contenido */
-.welcome-title {
-  font-size: 36px;
-  font-weight: bold;
-  text-align: center;
-}
-
-.role-title {
-  font-size: 24px;
-  font-weight: 500;
-  color: #6c757d;
-  text-align: center;
-}
-
-.text-center {
-  text-align: center;
-}
-
-/* Responsividad */
+/* Ajuste para pantallas pequeñas (menos de 768px) */
 @media (max-width: 768px) {
   #sidebar-wrapper {
-      width: 80px;
+    width: 80px;
   }
 
   .navbar {
-      height: 50px;
-      padding: 0 10px;
+    height: 50px;
+    padding: 0 10px;
   }
 
   .navbar img {
-      width: 30px;
-      height: 30px;
+    width: 30px;
+    height: 30px;
   }
 
   .navbar .navbar-brand {
-      font-size: 1rem;
+    font-size: 1rem;
   }
 
   .sidebar-heading h4 {
-      font-size: 1.2rem;
-      padding: 10px 0;
+    font-size: 1.2rem;
+    padding: 10px 0;
   }
 
   #page-content-wrapper {
-      margin-left: 80px;
-      padding: 10px;
+    margin-left: 80px;
+    padding: 10px;
+    overflow-x: auto; /* Agrega el desplazamiento horizontal en pantallas pequeñas */
   }
+}
+
+/* Agregar barra horizontal si el contenido se desborda */
+body {
+  overflow-x: auto; /* Habilitar el desplazamiento horizontal global */
 }

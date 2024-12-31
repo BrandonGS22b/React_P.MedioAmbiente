@@ -81,7 +81,7 @@ const getUsuarios = async () => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return response.data;
+    return response.data; // Asegúrate de que `users` contenga el campo `estado`
   } catch (error) {
     console.error('Error obteniendo usuarios:', error.response ? error.response.data : error.message);
     throw error;
@@ -90,8 +90,22 @@ const getUsuarios = async () => {
 
 // Obtener usuario por ID
 const UserService = async (id) => {
-  const response = await axios.get(`${API_URL}/users/${id}`);
-  return response;
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Token no disponible');
+  }
+
+  try {
+    const response = await axios.get(`${API_URL}/users/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error obteniendo usuario:', error.response ? error.response.data : error.message);
+    throw error;
+  }
 };
 
 // Función para crear un usuario con role incluido
@@ -220,51 +234,43 @@ const getCurrentUser = () => {
   const user = localStorage.getItem('user');
   return user ? JSON.parse(user) : null;
 };
-const disableUser = async (id) => {
+
+
+
+const enableUser = async (userId) => {
   const token = localStorage.getItem('token');
   if (!token) {
     throw new Error('Token no disponible');
   }
 
   try {
-    const response = await axios.patch(
-      `${API_URL}/users/${id}/disable`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true,
+    const response = await axios.patch(`${API_URL}/users/${userId}/enable`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`
       }
-    );
+    });
     return response.data;
   } catch (error) {
-    console.error('Error desactivando usuario:', error.response ? error.response.data : error.message);
+    console.error('Error en enableUser:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
 
-// Función para activar un usuario
-const enableUser = async (id) => {
+const disableUser = async (userId) => {
   const token = localStorage.getItem('token');
   if (!token) {
     throw new Error('Token no disponible');
   }
 
   try {
-    const response = await axios.patch(
-      `${API_URL}/users/${id}/enable`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true,
+    const response = await axios.patch(`${API_URL}/users/${userId}/disable`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`
       }
-    );
+    });
     return response.data;
   } catch (error) {
-    console.error('Error activando usuario:', error.response ? error.response.data : error.message);
+    console.error('Error en disableUser:', error.response ? error.response.data : error.message);
     throw error;
   }
 };

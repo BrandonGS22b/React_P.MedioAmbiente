@@ -76,7 +76,7 @@ function Dashboard() {
       </nav>
 
       <div className="d-flex flex-column" id="wrapper" style={{ marginTop: "56px" }}>
-        {/* Sidebar con el contenido */}
+        {/* Barra lateral (Sidebar) */}
         <div id="sidebar-wrapper" className="bg-light border-right">
           <div className="sidebar-heading text-center py-4">
             <h4>Mi Dashboard</h4>
@@ -132,11 +132,14 @@ function Dashboard() {
           </ul>
         </div>
 
-        {/* Contenido principal dentro de la barra superior */}
-        <div id="page-content-wrapper" className="container-fluid" style={{ marginLeft: "250px", padding: "20px" }}>
+        {/* Contenido principal (Main Content) */}
+        <div id="page-content-wrapper" className="container-fluid">
+          <div className="row">
+            {/* Ajuste para pantallas pequeñas */}
+            <div className="col-md-9 col-12 mt-4">{content}</div>
+          </div>
           {user ? (
-            <div className="text-center">
-              <div className="mt-4">{content}</div>
+            <div className="text-center mt-4">
               {timeLeft !== null && (
                 <p className="text-muted mt-3">Tiempo restante para la expiración del token: {timeLeft} segundos</p>
               )}
