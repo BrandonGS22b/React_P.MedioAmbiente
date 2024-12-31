@@ -90,4 +90,18 @@
       padding: 10px; /* Ajuste para hacer los botones más accesibles */
     }
   }
+  .forgot-password-button {
+    background-color: transparent;
+    border: none;
+    color: #0056b3; /* Azul oscuro */
+    text-align: center;
+    font-size: 1rem;
+    margin-top: 10px;
+    cursor: pointer;
+    text-decoration: underline; /* Subrayado para que se vea como un enlace */
+    transition: color 0.3s ease;
+  }
   
+  .forgot-password-button:hover {
+    color: #003366; /* Un color más oscuro al pasar el mouse */
+  }

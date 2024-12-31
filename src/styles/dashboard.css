@@ -1,29 +1,37 @@
 /* Barra lateral para pantallas pequeñas */
 #sidebar-wrapper {
   width: 250px;
-  background-color: #e3f2fd; 
+  background-color: #e3f2fd;
   border-right: 1px solid #ddd;
   position: fixed;
-  top: 100px; 
+  top: 56px; /* Altura fija para que no interfiera con la barra superior */
   bottom: 0;
   overflow-y: auto;
   overflow-x: hidden; /* Evita el desbordamiento horizontal en pantallas pequeñas */
   transition: all 0.3s ease;
+  z-index: 1020; /* Asegura que la barra lateral esté por encima del contenido */
 }
 
 /* Contenido principal */
 #page-content-wrapper {
-  margin-left: 150px;
+  margin-left: 250px; /* Ajuste para que no quede debajo del sidebar */
   padding: 20px;
   background-color: #f5f5f5;
-  height: calc(100vh - 100px); 
-  overflow-x: auto; /* Permite el desplazamiento horizontal si el contenido se desborda */
+  height: calc(100vh - 56px); /* Altura dinámica según la barra superior */
+  overflow-y: auto;
+  overflow-x: hidden; /* Evita el desbordamiento horizontal */
+  transition: all 0.3s ease;
 }
 
 /* Ajuste para pantallas pequeñas (menos de 768px) */
 @media (max-width: 768px) {
   #sidebar-wrapper {
     width: 80px;
+  }
+
+  #page-content-wrapper {
+    margin-left: 80px;
+    padding: 10px;
   }
 
   .navbar {
@@ -44,15 +52,14 @@
     font-size: 1.2rem;
     padding: 10px 0;
   }
-
-  #page-content-wrapper {
-    margin-left: 80px;
-    padding: 10px;
-    overflow-x: auto; /* Agrega el desplazamiento horizontal en pantallas pequeñas */
-  }
 }
 
-/* Agregar barra horizontal si el contenido se desborda */
+/* General: Ajustar los menús para evitar interferencias */
+.navbar {
+  z-index: 1030; /* Barra superior por encima de otros elementos */
+}
+
 body {
-  overflow-x: auto; /* Habilitar el desplazamiento horizontal global */
+  margin: 0;
+  overflow-x: hidden; /* Evita desbordamiento horizontal no deseado */
 }

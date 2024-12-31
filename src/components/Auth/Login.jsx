@@ -56,6 +56,10 @@ const LoginForm = () => {
     }
   };
 
+  const handleForgotPassword = () => {
+    navigate('/RecuperarPass'); // Redirige a la página de recuperación de contraseña
+  };
+
   return (
     <div className="login-container">
       <form onSubmit={handleLogin} className="login-form">
@@ -78,6 +82,15 @@ const LoginForm = () => {
           {loading ? 'Cargando...' : 'Iniciar sesión'}
         </button>
         {error && <p className="error-message">{error}</p>}
+        
+        {/* Botón de recuperación de contraseña */}
+        <button 
+          type="button" 
+          onClick={handleForgotPassword} 
+          className="forgot-password-button"
+        >
+          ¿Olvidaste tu contraseña?
+        </button>
       </form>
     </div>
   );
