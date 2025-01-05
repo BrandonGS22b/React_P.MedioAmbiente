@@ -1,107 +1,133 @@
 /* login.css */
+
+/* Contenedor principal con fondo de pantalla */
 .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f0f0f0;
-    padding: 10px; /* Añadido padding para dispositivos móviles */
-  }
-  
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: url('##') no-repeat center center;
+  background-size: cover;
+  padding: 10px;
+}
+
+/* Espacio para el logo */
+.logo-container {
+  margin-bottom: 30px; /* Espaciado entre logo y formulario */
+}
+
+.logo-container img {
+  max-width: 120px; /* Aumentar tamaño del logo */
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border-radius: 8px; /* Redondear bordes */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Sombra más destacada */
+}
+
+/* Formulario de inicio de sesión */
+.login-form {
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+}
+
+/* Título del formulario */
+.login-form h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+/* Entradas de texto */
+.login-form input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+/* Botón de inicio de sesión */
+.login-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.login-button:disabled {
+  background-color: #a5d6a7;
+}
+
+/* Mensaje de error */
+.error-message {
+  color: red;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+/* Botón de contraseña olvidada */
+.forgot-password-button {
+  background-color: transparent;
+  border: none;
+  color: #0056b3;
+  text-align: center;
+  font-size: 1rem;
+  margin-top: 10px;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.forgot-password-button:hover {
+  color: #003366;
+}
+
+/* Media Queries para diseño responsivo */
+@media (max-width: 768px) {
   .login-form {
-    background-color: white;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%; /* Se asegura de que ocupe el 100% del espacio disponible */
-    max-width: 400px; /* Se establece un ancho máximo para que no se expanda demasiado en pantallas grandes */
-    text-align: center;
+    max-width: 90%;
   }
-  
+
   .login-form h2 {
-    margin-bottom: 20px;
-    font-size: 24px;
-    color: #333;
+    font-size: 22px;
   }
-  
-  .login-form input {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-  }
-  
+
   .login-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
-  .login-button:disabled {
-    background-color: #a5d6a7;
-  }
-  
-  .error-message {
-    color: red;
-    margin-top: 10px;
     font-size: 14px;
+    padding: 12px;
   }
-  
-  /* Media Queries para hacerlo responsive */
-  @media (max-width: 768px) {
-    .login-form {
-      padding: 15px;
-      max-width: 90%; /* Reduce el max-width en dispositivos más pequeños */
-    }
-  
-    .login-form h2 {
-      font-size: 20px; /* Reduce el tamaño de la fuente en pantallas más pequeñas */
-    }
-  
-    .login-button {
-      font-size: 14px; /* Reduce el tamaño del botón */
-      padding: 12px; /* Aumenta el padding para hacerlo más accesible */
-    }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 0 10px;
   }
-  
-  @media (max-width: 480px) {
-    .login-container {
-      padding: 0 10px; /* Asegura que no haya espacios innecesarios en pantallas muy pequeñas */
-    }
-  
-    .login-form {
-      max-width: 100%; /* El formulario ocupa el 100% del ancho disponible */
-      padding: 10px;
-    }
-  
-    .login-form h2 {
-      font-size: 18px; /* Reduce más el tamaño del título */
-    }
-  
-    .login-button {
-      font-size: 14px; /* Ajuste para pantallas muy pequeñas */
-      padding: 10px; /* Ajuste para hacer los botones más accesibles */
-    }
+
+  .login-form {
+    max-width: 100%;
+    padding: 15px;
   }
-  .forgot-password-button {
-    background-color: transparent;
-    border: none;
-    color: #0056b3; /* Azul oscuro */
-    text-align: center;
-    font-size: 1rem;
-    margin-top: 10px;
-    cursor: pointer;
-    text-decoration: underline; /* Subrayado para que se vea como un enlace */
-    transition: color 0.3s ease;
+
+  .login-form h2 {
+    font-size: 18px;
   }
-  
-  .forgot-password-button:hover {
-    color: #003366; /* Un color más oscuro al pasar el mouse */
+
+  .login-button {
+    font-size: 14px;
+    padding: 10px;
   }
+}

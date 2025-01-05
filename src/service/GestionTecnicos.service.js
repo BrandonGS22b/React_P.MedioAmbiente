@@ -53,6 +53,7 @@ const GestionTecnicoService = {
     }
   },
 
+  //para actualizar las asignaciones
   cargarEvidencia: async (solicitudId, formData) => {
     try {
       const response = await axios.patch(`${API_URL}/asignaciones/${solicitudId}`, formData, {

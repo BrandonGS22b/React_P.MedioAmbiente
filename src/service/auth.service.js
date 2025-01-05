@@ -90,20 +90,11 @@ const getUsuarios = async () => {
 
 // Obtener usuario por ID
 const UserService = async (id) => {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    throw new Error('Token no disponible');
-  }
-
   try {
-    const response = await axios.get(`${API_URL}/users/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
+    const response = await axios.get(`https://loginexpress-ts-jwt.onrender.com/api/auth/users/${id}`);
+    return response; // Debe contener un campo 'data' con los datos del usuario
   } catch (error) {
-    console.error('Error obteniendo usuario:', error.response ? error.response.data : error.message);
+    console.error('Error al obtener los datos del usuario:', error);
     throw error;
   }
 };

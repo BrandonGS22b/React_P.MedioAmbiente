@@ -17,33 +17,25 @@ const LoginForm = () => {
     setLoading(true); // Inicia la carga
     try {
       const response = await authService.login(email, password); // Utiliza el servicio para iniciar sesión
-  
+
       if (response && response.token) {
-        // Verificar si el usuario está activo
-        console.log('Estado del usuario:', response.user.estado); // Verifica el estado del usuario
-  
         if (response.user.estado && response.user.estado.trim() !== 'activo') {
           setError('El usuario no está activo. Por favor, contacta al administrador.');
           setLoading(false);
           return;
         }
-  
-        console.log('Login successful');
-        console.log('Datos del usuario:', response.user); // Agregado para ver qué datos está recibiendo
-  
-        // Actualiza el estado del usuario en el contexto, asegurando que se incluya el nombre, email y role
+
         login({
-          _id: response.user._id, // Asegúrate de incluir el _id
+          _id: response.user._id,
           name: response.user.name,
           email: response.user.email,
           role: response.user.role,
-          estado: response.user.estado, // Asegúrate de que "estado" esté disponible en el objeto usuario
+          estado: response.user.estado,
         });
-  
-        // También puedes almacenar el nombre en localStorage si lo deseas
+
         localStorage.setItem('name', response);
-        localStorage.setItem('user', JSON.stringify(response.user)); // Almacena el objeto usuario completo
-  
+        localStorage.setItem('user', JSON.stringify(response.user));
+
         navigate('/dashboard'); // Navega a la página de inicio
       } else {
         setError('Error al iniciar sesión. Por favor, verifica tus credenciales.');
@@ -62,6 +54,9 @@ const LoginForm = () => {
 
   return (
     <div className="login-container">
+      <div className="logo-container">
+        <img src="/logo.png" alt="Logo" className="logo" />
+      </div>
       <form onSubmit={handleLogin} className="login-form">
         <h2>Iniciar sesión</h2>
         <input
@@ -82,11 +77,10 @@ const LoginForm = () => {
           {loading ? 'Cargando...' : 'Iniciar sesión'}
         </button>
         {error && <p className="error-message">{error}</p>}
-        
-        {/* Botón de recuperación de contraseña */}
-        <button 
-          type="button" 
-          onClick={handleForgotPassword} 
+
+        <button
+          type="button"
+          onClick={handleForgotPassword}
           className="forgot-password-button"
         >
           ¿Olvidaste tu contraseña?
