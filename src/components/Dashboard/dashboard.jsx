@@ -13,6 +13,7 @@ import {
   faUser,
   faFileAlt,
   faSignOutAlt,
+  faUserShield 
 } from "@fortawesome/free-solid-svg-icons";
 import "./../../styles/dashboard.css";
 
@@ -197,21 +198,24 @@ function Dashboard() {
           />
           <span className="navbar-brand mb-0 h1">EcoApp</span>
           {user && (
-            <div className="d-flex align-items-center ms-auto">
-              <div className="text-dark me-3">
-                <span>Bienvenido, {user.name}</span>
-                <br />
-                <span>Rol: {user.role}</span>
-              </div>
-              {user.profilePicture && (
-                <img
-                  src={user.profilePicture}
-                  alt="Perfil"
-                  className="rounded-circle"
-                  style={{ width: "40px", height: "40px" }}
-                />
-              )}
+            <div className="d-flex align-items-center ms-auto user-info">
+            <FontAwesomeIcon icon={faUser} className="me-2 user-icon" />
+            <div className="text-dark me-3">
+              <span className="user-name">Bienvenido, {user.name}</span>
+              <br />
+              <span className="user-role">
+                <FontAwesomeIcon icon={faUserShield} className="me-1 role-icon" />
+                Rol: {user.role}
+              </span>
             </div>
+            {user.profilePicture && (
+              <img
+                src={user.profilePicture}
+                alt="Perfil"
+                className="rounded-circle user-profile-picture"
+              />
+            )}
+          </div>
           )}
         </div>
       </nav>
