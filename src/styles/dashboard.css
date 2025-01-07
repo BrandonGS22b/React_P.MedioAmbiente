@@ -4,14 +4,14 @@
   top: 0;
   left: 0;
   bottom: 0;
-  background-color: #f8f9fa;
+  background-color: #090b07;
   padding-top: 20px;
 }
 
 #page-content-wrapper {
   background-image: url('/public/fondoclaro.jpg'); /* Cambia el path con la ruta de tu imagen */
   margin-left: 250px;
-  padding: 20px;
+  padding: 50px;
 }
 
 .list-group-item {

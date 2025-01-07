@@ -240,7 +240,7 @@ function Dashboard() {
 
         <div id="page-content-wrapper" className="container-fluid">
           <div className="row">
-            <div className="col-md-9 col-12 mt-4">{content}</div>
+            <div className="col-md-9 col-12 mt-5">{content}</div>
           </div>
           {user ? (
             <div className="text-center mt-4">

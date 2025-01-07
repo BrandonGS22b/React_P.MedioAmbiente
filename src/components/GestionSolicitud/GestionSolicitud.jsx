@@ -196,6 +196,7 @@ function GestionSolicitud() {
           </div>
         </form>
       ) : (
+        <div className="table-container">
         <table className="solicitudes-table">
           <thead>
             <tr>
@@ -235,6 +236,7 @@ function GestionSolicitud() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
 
       {showUserModal && (

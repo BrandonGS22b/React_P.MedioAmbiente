@@ -1,19 +1,21 @@
 /* Estilos Generales */
 .gestion-solicitud {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f7fc;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 1200px;
-    margin: auto;
-  }
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f7fc;
+  padding:20px;
+  border-radius: 8px;
+  max-width: auto; /* Define un límite de ancho para el contenedor */
+  margin: auto; /* Centra el contenedor */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Mejora visual */
+  overflow: hidden; 
+}
   
   h1, h2 {
     color: #333;
   }
   
   h1 {
-    font-size: 28px;
+    font-size: 30px;
     text-align: center;
     margin-bottom: 20px;
   }
@@ -31,17 +33,23 @@
     margin-top: 20px;
   }
   
-  .solicitudes-table th, .solicitudes-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
+  .solicitudes-table th,
+.solicitudes-table td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd; /* Bordes ligeros */
+}
   
   .solicitudes-table th {
     background-color: #007bff;
     color: white;
   }
-  
+  .solicitudes-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  .solicitudes-table tr:hover {
+    background-color: #f1f1f1; /* Resalta la fila al pasar el mouse */
+  }
   .solicitudes-table td {
     background-color: #f9f9f9;
   }
@@ -147,7 +155,7 @@
     padding: 20px;
     border-radius: 8px;
     width: 80%;
-    max-width: 600px;
+    max-width: px;
     text-align: center;
     position: relative;
   }
@@ -186,6 +194,16 @@
   
     .modal-content {
       width: 90%;
+    }
+    .table-container {
+      overflow-x: auto; /* Permite scroll horizontal si es necesario */
+      margin-top: 20px;
+    }
+    
+    /* Asegura que la tabla use un ancho adecuado */
+    .solicitudes-table {
+      width: 100%; /* La tabla ocupa todo el ancho del contenedor */
+      border-collapse: collapse; /* Bordes colapsados para un diseño limpio */
     }
   }
   
