@@ -1,65 +1,51 @@
-/* Barra lateral para pantallas pequeñas */
 #sidebar-wrapper {
   width: 250px;
-  background-color: #e3f2fd;
-  border-right: 1px solid #ddd;
   position: fixed;
-  top: 56px; /* Altura fija para que no interfiera con la barra superior */
+  top: 0;
+  left: 0;
   bottom: 0;
-  overflow-y: auto;
-  overflow-x: hidden; /* Evita el desbordamiento horizontal en pantallas pequeñas */
-  transition: all 0.3s ease;
-  z-index: 1020; /* Asegura que la barra lateral esté por encima del contenido */
+  background-color: #f8f9fa;
+  padding-top: 20px;
 }
 
-/* Contenido principal */
 #page-content-wrapper {
-  margin-left: 250px; /* Ajuste para que no quede debajo del sidebar */
+  background-image: url('/public/fondoclaro.jpg'); /* Cambia el path con la ruta de tu imagen */
+  margin-left: 250px;
   padding: 20px;
-  background-color: #f5f5f5;
-  height: calc(100vh - 56px); /* Altura dinámica según la barra superior */
-  overflow-y: auto;
-  overflow-x: hidden; /* Evita el desbordamiento horizontal */
-  transition: all 0.3s ease;
 }
 
-/* Ajuste para pantallas pequeñas (menos de 768px) */
-@media (max-width: 768px) {
-  #sidebar-wrapper {
-    width: 80px;
-  }
-
-  #page-content-wrapper {
-    margin-left: 80px;
-    padding: 10px;
-  }
-
-  .navbar {
-    height: 50px;
-    padding: 0 10px;
-  }
-
-  .navbar img {
-    width: 30px;
-    height: 30px;
-  }
-
-  .navbar .navbar-brand {
-    font-size: 1rem;
-  }
-
-  .sidebar-heading h4 {
-    font-size: 1.2rem;
-    padding: 10px 0;
-  }
+.list-group-item {
+  border: none;
+  padding: 15px 20px;
 }
 
-/* General: Ajustar los menús para evitar interferencias */
+.list-group-item button {
+  font-size: 16px;
+}
+
 .navbar {
-  z-index: 1030; /* Barra superior por encima de otros elementos */
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #e3e3e3;
 }
 
-body {
-  margin: 0;
-  overflow-x: hidden; /* Evita desbordamiento horizontal no deseado */
+.navbar-brand {
+  font-size: 24px;
+  color: #17eb21 !important;
+}
+
+.sidebar-heading {
+  color: #333;
+}
+
+.btn {
+  font-weight: 500;
+}
+
+.btn-light {
+  color: #333;
+}
+
+.btn-danger {
+  color: white;
+  font-weight: bold;
 }

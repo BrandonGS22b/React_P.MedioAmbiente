@@ -22,6 +22,7 @@ function GestionSolicitud() {
   const [view, setView] = useState('list');
   const [selectedUserData, setSelectedUserData] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
+  const [usuarios, setUsuarios] = useState([]); // Para almacenar los usuarios
 
   useEffect(() => {
     const fetchSolicitudes = async () => {
@@ -34,7 +35,22 @@ function GestionSolicitud() {
       }
     };
 
+    const fetchUsuarios = async () => {
+      try {
+        const usuarios = await authService.getUsuariosConRol(); // Aquí directamente esperas un array
+        if (Array.isArray(usuarios)) {
+          setUsuarios(usuarios); // Asignas los usuarios al estado
+          console.log('listado usuarios:', usuarios);
+        } else {
+          throw new Error('La respuesta no contiene datos de usuarios.');
+        }
+      } catch (error) {
+        console.error('Error al obtener los usuarios:', error.message || error);
+        setError('Error al cargar los usuarios.');
+      }
+    };
     fetchSolicitudes();
+    fetchUsuarios();
   }, []);
 
   const handleInputChange = (e) => {
@@ -157,7 +173,12 @@ function GestionSolicitud() {
       {view === 'form' ? (
         <form onSubmit={handleSubmit} className="solicitud-form">
           <div className="form-group">
-            <input type="text" name="usuario_id" placeholder="Usuario ID" value={newSolicitud.usuario_id} onChange={handleInputChange} required />
+            <select name="usuario_id" value={newSolicitud.usuario_id} onChange={handleInputChange} required>
+              <option value="">Seleccionar usuario</option>
+              {usuarios.map((usuario) => (
+                <option key={usuario._id} value={usuario._id}>{usuario.name}</option>
+              ))}
+            </select>
             <input type="text" name="categoria" placeholder="Categoría" value={newSolicitud.categoria} onChange={handleInputChange} required />
             <input type="text" name="descripcion" placeholder="Descripción" value={newSolicitud.descripcion} onChange={handleInputChange} required />
             <input type="text" name="telefono" placeholder="Teléfono" value={newSolicitud.telefono} onChange={handleInputChange} required />
@@ -228,7 +249,6 @@ function GestionSolicitud() {
                 <p><strong>Email:</strong> {selectedUserData.email}</p>
                 <p><strong>Teléfono:</strong> {selectedUserData.telefono}</p>
                 <p><strong>Dirección:</strong> {selectedUserData.direccion}</p>
-                {/* Aquí puedes agregar más datos del usuario según sea necesario */}
               </div>
             )}
           </div>

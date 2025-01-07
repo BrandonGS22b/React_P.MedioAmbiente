@@ -191,6 +191,28 @@ const getTechnicianById = async (id) => {
   }
 };
 
+
+//obtener usuarios con rol usuario
+const getUsuariosConRol = async () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Token no disponible');
+  }
+
+  try {
+    const response = await axios.get(`https://loginexpress-ts-jwt.onrender.com/api/auth/AuxiliarUsuarios`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data; // Aquí `response.data` es directamente el array de usuarios
+  } catch (error) {
+    console.error('Error obteniendo usuarios por rol:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+
 // Función para asignar un técnico a una tarea
 const assignTechnician = async (taskId, technicianId) => {
   const token = localStorage.getItem('token');
@@ -265,6 +287,34 @@ const disableUser = async (userId) => {
     throw error;
   }
 };
+const changePassword = async (correo, documento, nuevaClave) => {
+  try {
+    // Verificar si los datos necesarios están disponibles
+    if (!correo || !documento || !nuevaClave) {
+      throw new Error('Correo, documento y nuevaClave son requeridos');
+    }
+
+    const response = await axios.patch(`${API_URL}/changePassword`, 
+      { correo, documento, nuevaClave },
+      { 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true 
+      }
+    );
+
+    // Verificar que la respuesta sea exitosa
+    if (response.data.message) {
+      return response.data.message; // Devuelve el mensaje de éxito
+    } else {
+      throw new Error('Error inesperado');
+    }
+  } catch (error) {
+    console.error('Error en changePassword:', error.response ? error.response.data : error.message);
+    throw error; // Propagar el error para manejarlo en el componente
+  }
+};
 
 
 // Exporta todas las funciones del servicio de autenticación
@@ -276,10 +326,12 @@ const authService = {
   createUsuario,
   updateUsuario,
   getTechnicianById,
+  getUsuariosConRol,
   deleteUsuario,
   UserService,
   getTechnicians,
   assignTechnician,
+  changePassword,
   disableUser,
   enableUser,
 };

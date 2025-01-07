@@ -15,17 +15,26 @@ const RecuperarPass = () => {
   const handleRecovery = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError(''); // Limpiar cualquier mensaje de error previo
 
     try {
-      const validateResponse = await authService.validateCorreoCedula(email, document);
+      // Validación inicial de campos en el frontend
+      if (!email || !document || !newPassword) {
+        setError('Todos los campos son obligatorios.');
+        setLoading(false);
+        return;
+      }
+
+      // Verificación de usuario en el backend
+      const validateResponse = await authService.updateUsuario(email, document);
 
       if (validateResponse && validateResponse.isValid) {
-        const changeResponse = await authService.changePassword(email, newPassword);
+        // Cambiar la contraseña
+        const changeResponse = await authService.changePassword(email, document, newPassword);
 
-        if (changeResponse && changeResponse.success) {
+        if (changeResponse && changeResponse.message === 'Password changed successfully') {
           swal('Contraseña cambiada', 'Tu contraseña ha sido actualizada correctamente', 'success');
-          navigate('/');
+          navigate('/'); // Redirigir al inicio de sesión
         } else {
           setError('No se pudo cambiar la contraseña. Inténtalo nuevamente.');
         }

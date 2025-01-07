@@ -6,10 +6,15 @@ import Usuarios from "../Auth/Usuarios";
 import GestionSolicitud from "../GestionSolicitud/GestionSolicitud";
 import GestionMantenimiento from "../GestionMantenimiento/HistorialMantenimiento";
 import HistorialSolicitud from "../HistorialSolicitud/HistorialSolicitud";
-import GestionTecnico from "../GestionTecnico/GestionTecnico";
+import GestionTecnicos from "../GestionTecnico/GestionTecnico";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome, faUser, faFileAlt, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
-import "./../../styles/dashboard.css"; // Importar CSS específico
+import {
+  faHome,
+  faUser,
+  faFileAlt,
+  faSignOutAlt,
+} from "@fortawesome/free-solid-svg-icons";
+import "./../../styles/dashboard.css";
 
 function Dashboard() {
   const { user, logout } = useAuth();
@@ -25,11 +30,19 @@ function Dashboard() {
 
     const expiresIn = localStorage.getItem("expiresIn");
     if (expiresIn) {
-      setTimeLeft(parseInt(expiresIn, 10));
-      const timeout = setTimeout(() => {
-        logout();
-      }, parseInt(expiresIn, 10) * 1000);
-      return () => clearTimeout(timeout);
+      const expirationTime = parseInt(expiresIn, 10);
+      setTimeLeft(expirationTime);
+
+      const interval = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev > 1) return prev - 1;
+          clearInterval(interval);
+          logout();
+          return null;
+        });
+      }, 1000);
+
+      return () => clearInterval(interval);
     }
   }, [user, logout, navigate]);
 
@@ -38,26 +51,154 @@ function Dashboard() {
   };
 
   const handleContentChange = (newContent) => {
-    if (user) {
-      setContent(newContent);
+    if (user) setContent(newContent);
+  };
+
+  const renderSidebarOptions = () => {
+    const role = user?.role || "";
+
+    switch (role) {
+      case "admin":
+        return (
+          <>
+            <li className="list-group-item">
+              <button
+                onClick={() => handleContentChange(<Home />)}
+                className="btn btn-light w-100 text-start"
+                aria-label="Inicio"
+              >
+                <FontAwesomeIcon icon={faHome} /> Inicio
+              </button>
+            </li>
+            <li className="list-group-item">
+              <button
+                onClick={() => handleContentChange(<Usuarios />)}
+                className="btn btn-light w-100 text-start"
+                aria-label="Usuarios"
+              >
+                <FontAwesomeIcon icon={faUser} /> Usuarios
+              </button>
+            </li>
+            <li className="list-group-item">
+              <button
+                onClick={() => handleContentChange(<GestionSolicitud />)}
+                className="btn btn-light w-100 text-start"
+                aria-label="Gestión Solicitudes"
+              >
+                <FontAwesomeIcon icon={faFileAlt} /> Gestión Solicitudes
+              </button>
+            </li>
+            <li className="list-group-item">
+              <button
+                onClick={() => handleContentChange(<GestionMantenimiento />)}
+                className="btn btn-light w-100 text-start"
+                aria-label="Gestión Mantenimiento"
+              >
+                <FontAwesomeIcon icon={faFileAlt} /> Gestión Mantenimiento
+              </button>
+            </li>
+            <li className="list-group-item">
+              <button
+                onClick={() => handleContentChange(<HistorialSolicitud />)}
+                className="btn btn-light w-100 text-start"
+                aria-label="Historial Solicitudes"
+              >
+                <FontAwesomeIcon icon={faFileAlt} /> Historial Solicitudes
+              </button>
+            </li>
+
+            <li className="list-group-item">
+              <button
+                onClick={() => handleContentChange(<GestionTecnicos />)}
+                className="btn btn-light w-100 text-start"
+                aria-label="Historial Solicitudes"
+              >
+                <FontAwesomeIcon icon={faFileAlt} /> Gestion tecnicos
+              </button>
+            </li>
+          </>
+        );
+
+      case "tecnico":
+        return (
+          <>
+          <li className="list-group-item">
+            <button
+              onClick={() => handleContentChange(<Home />)}
+              className="btn btn-light w-100 text-start"
+              aria-label="Inicio"
+            >
+              <FontAwesomeIcon icon={faHome} /> Inicio
+            </button>
+          </li>
+            
+            <li className="list-group-item">
+              <button
+                onClick={() => handleContentChange(<GestionTecnicos />)}
+                className="btn btn-light w-100 text-start"
+                aria-label="Historial Solicitudes"
+              >
+                <FontAwesomeIcon icon={faFileAlt} /> Gestion Tecnico
+              </button>
+            </li>
+          </>
+        );
+
+      case "auxiliar":
+        return (
+          <>
+          <li className="list-group-item">
+            <button
+              onClick={() => handleContentChange(<Home />)}
+              className="btn btn-light w-100 text-start"
+              aria-label="Inicio"
+            >
+              <FontAwesomeIcon icon={faHome} /> Inicio
+            </button>
+          </li>
+          
+          <li className="list-group-item">
+            <button
+              onClick={() => handleContentChange(<HistorialSolicitud />)}
+              className="btn btn-light w-100 text-start"
+              aria-label="Historial Solicitudes"
+            >
+              <FontAwesomeIcon icon={faFileAlt} /> Historial Solicitudes
+            </button>
+          </li>
+          </>
+        );
+
+      case "usuario":
+      default:
+        return (
+          <li className="list-group-item">
+            <button
+              onClick={() => handleContentChange(<Home />)}
+              className="btn btn-light w-100 text-start"
+              aria-label="Inicio"
+            >
+              <FontAwesomeIcon icon={faHome} /> Inicio
+            </button>
+          </li>
+        );
     }
   };
 
   return (
     <>
-      {/* Barra superior con el contenido principal dentro */}
-      <nav className="navbar navbar-dark bg-primary fixed-top">
+      <nav className="navbar navbar-dark bg-light fixed-top">
         <div className="container-fluid d-flex align-items-center">
           <img
-            src="/path/to/logo.png"
+            src="/logo.jpg"
             alt="Logo"
-            className="me-3"
-            style={{ width: "40px", height: "40px" }}
+            className="me-4"
+            style={{ width: "100px", height: "100px" }}
           />
-          <span className="navbar-brand mb-0 h1">Mi Dashboard</span>
+          <span className="navbar-brand mb-0 h1">EcoApp</span>
           {user && (
             <div className="d-flex align-items-center ms-auto">
-              <div className="text-white me-3">
+              <div className="text-dark me-3">
                 <span>Bienvenido, {user.name}</span>
                 <br />
                 <span>Rol: {user.role}</span>
@@ -75,73 +216,39 @@ function Dashboard() {
         </div>
       </nav>
 
-      <div className="d-flex flex-column" id="wrapper" style={{ marginTop: "56px" }}>
-        {/* Barra lateral (Sidebar) */}
+      <div className="d-flex flex-column" id="wrapper" style={{ marginTop: "60px" }}>
         <div id="sidebar-wrapper" className="bg-light border-right">
-          <div className="sidebar-heading text-center py-4">
+          <div
+            className="sidebar-heading text-center py-3"
+            style={{ marginTop: "100px" }}
+          >
             <h4>Mi Dashboard</h4>
           </div>
           <ul className="list-group list-group-flush">
-            <li className="list-group-item">
-              <button onClick={() => handleContentChange(<Home />)} className="btn btn-light w-100 text-start">
-                <FontAwesomeIcon icon={faHome} /> Inicio
-              </button>
-            </li>
-            <li className="list-group-item">
-              <button onClick={() => handleContentChange(<Usuarios />)} className="btn btn-light w-100 text-start">
-                <FontAwesomeIcon icon={faUser} /> Usuarios
-              </button>
-            </li>
+            {renderSidebarOptions()}
             <li className="list-group-item">
               <button
-                onClick={() => handleContentChange(<GestionSolicitud />)}
-                className="btn btn-light w-100 text-start"
+                onClick={handleLogout}
+                className="btn btn-danger w-100 text-start"
+                aria-label="Cerrar Sesión"
               >
-                <FontAwesomeIcon icon={faFileAlt} /> Gestión Solicitudes
-              </button>
-            </li>
-            <li className="list-group-item">
-              <button
-                onClick={() => handleContentChange(<GestionMantenimiento />)}
-                className="btn btn-light w-100 text-start"
-              >
-                <FontAwesomeIcon icon={faFileAlt} /> Gestión Mantenimiento
-              </button>
-            </li>
-            <li className="list-group-item">
-              <button
-                onClick={() => handleContentChange(<HistorialSolicitud />)}
-                className="btn btn-light w-100 text-start"
-              >
-                <FontAwesomeIcon icon={faFileAlt} /> Historial Solicitudes
-              </button>
-            </li>
-            <li className="list-group-item">
-              <button
-                onClick={() => handleContentChange(<GestionTecnico />)}
-                className="btn btn-light w-100 text-start"
-              >
-                <FontAwesomeIcon icon={faFileAlt} /> Gestión Técnicos
-              </button>
-            </li>
-            <li className="list-group-item">
-              <button onClick={handleLogout} className="btn btn-danger w-100 text-start">
                 <FontAwesomeIcon icon={faSignOutAlt} /> Cerrar Sesión
               </button>
             </li>
           </ul>
         </div>
 
-        {/* Contenido principal (Main Content) */}
         <div id="page-content-wrapper" className="container-fluid">
           <div className="row">
-            {/* Ajuste para pantallas pequeñas */}
             <div className="col-md-9 col-12 mt-4">{content}</div>
           </div>
           {user ? (
             <div className="text-center mt-4">
               {timeLeft !== null && (
-                <p className="text-muted mt-3">Tiempo restante para la expiración del token: {timeLeft} segundos</p>
+                <p className="text-muted mt-3">
+                  Tiempo restante para la expiración del token: {timeLeft}{" "}
+                  segundos
+                </p>
               )}
             </div>
           ) : (

@@ -2,7 +2,7 @@ import React from 'react';
 
 function Home() {
   return (
-    <div className="container-fluid my-5" style={{ marginLeft: '250px', paddingTop: '60px' }}>
+    <div className="container-fluid my-5" style={{ marginLeft: '30px', paddingTop: '60px' }}>
       <h1 className="text-center mb-4">Bienvenido a la App de Gestión de Residuos</h1>
       <p className="text-center mb-5">
         ¡Bienvenido! En esta aplicación podrás gestionar y seguir el estado de los reportes sobre residuos y problemas ambientales en los municipios de Bucaramanga, Floridablanca y Girón.
@@ -12,9 +12,9 @@ function Home() {
         {/* Alcaldía Bucaramanga */}
         <div className="col-md-4 mb-4">
           <div className="card shadow-sm">
-            <img src="https://via.placeholder.com/350x200" className="card-img-top" alt="Bucaramanga" />
+            <img src="/alcaldia_bucaramanga.jpg" className="card-img-top" alt="Bucaramanga" />
             <div className="card-body">
-              <h5 className="card-title">Información de la Alcaldía de Bucaramanga</h5>
+              <h5 className="card-title">Alcaldía de Bucaramanga</h5>
               <p className="card-text">
                 Bucaramanga, conocida como la "Ciudad Bonita", es la capital del Departamento de Santander. La Alcaldía de Bucaramanga trabaja constantemente para mejorar la calidad de vida de los ciudadanos, ofreciendo servicios de limpieza, recolección de residuos, y programas medioambientales.
               </p>
@@ -26,7 +26,7 @@ function Home() {
         {/* Alcaldía Floridablanca */}
         <div className="col-md-4 mb-4">
           <div className="card shadow-sm">
-            <img src="https://via.placeholder.com/350x200" className="card-img-top" alt="Floridablanca" />
+            <img src="/alcaldia_floridablanca.jpg" className="card-img-top" alt="Floridablanca" />
             <div className="card-body">
               <h5 className="card-title">Alcaldía de Floridablanca</h5>
               <p className="card-text">
@@ -40,7 +40,7 @@ function Home() {
         {/* Alcaldía Girón */}
         <div className="col-md-4 mb-4">
           <div className="card shadow-sm">
-            <img src="https://via.placeholder.com/350x200" className="card-img-top" alt="Girón" />
+            <img src="/alcaldia_giron.jpg" className="card-img-top" alt="Girón" />
             <div className="card-body">
               <h5 className="card-title">Alcaldía de Girón</h5>
               <p className="card-text">

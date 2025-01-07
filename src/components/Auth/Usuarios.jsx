@@ -253,6 +253,7 @@ function Usuarios() {
               <option value="usuario">Usuario</option>
               <option value="admin">Admin</option>
               <option value="tecnico">Técnico</option>
+              <option value="auxiliar">auxiliar</option>
             </select>
             <button
               onClick={handleAgregarOActualizarUsuario}
