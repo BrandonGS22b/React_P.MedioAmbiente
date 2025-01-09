@@ -27,6 +27,10 @@ const SolicitudService = {
   actualizarSolicitud: (id, updatedData) => {
     return axios.put(`${API_URL}/update/${id}`, updatedData);
   },
+
+  exportarSolicitudes: () => {
+    return axios.get(`${API_URL}/solicitudes/exportar`, { responseType: 'blob' });
+  },
 };
 
 export default SolicitudService;

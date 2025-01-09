@@ -22,7 +22,7 @@ function GestionSolicitud() {
   const [view, setView] = useState('list');
   const [selectedUserData, setSelectedUserData] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
-  const [usuarios, setUsuarios] = useState([]); // Para almacenar los usuarios
+  const [usuarios, setUsuarios] = useState([]);
 
   useEffect(() => {
     const fetchSolicitudes = async () => {
@@ -37,9 +37,9 @@ function GestionSolicitud() {
 
     const fetchUsuarios = async () => {
       try {
-        const usuarios = await authService.getUsuariosConRol(); // Aquí directamente esperas un array
+        const usuarios = await authService.getUsuariosConRol();
         if (Array.isArray(usuarios)) {
-          setUsuarios(usuarios); // Asignas los usuarios al estado
+          setUsuarios(usuarios);
           console.log('listado usuarios:', usuarios);
         } else {
           throw new Error('La respuesta no contiene datos de usuarios.');
@@ -52,6 +52,23 @@ function GestionSolicitud() {
     fetchSolicitudes();
     fetchUsuarios();
   }, []);
+
+  const handleExportarSolicitudes = async () => {
+    try {
+      const response = await SolicitudService.exportarSolicitudes();
+      // Crear un enlace temporal para descargar el archivo
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'solicitudes.xlsx'); // Nombre del archivo de descarga
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error al exportar las solicitudes:', error);
+      setError('Error al exportar las solicitudes.');
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -145,10 +162,10 @@ function GestionSolicitud() {
   };
 
   const handleShowUserData = async (id) => {
-    console.log("ID del usuario que se va a buscar:", id); // Verificar el id
+    console.log("ID del usuario que se va a buscar:", id);
     try {
       const response = await authService.UserService(id);
-      console.log("Respuesta de la API:", response);  // Verifica la respuesta de la API
+      console.log("Respuesta de la API:", response);
       setSelectedUserData(response.data);
       setShowUserModal(true);
     } catch (error) {
@@ -168,6 +185,10 @@ function GestionSolicitud() {
 
       <button onClick={() => handleViewChange(view === 'list' ? 'form' : 'list')}>
         {view === 'list' ? 'Crear Solicitud' : 'Ver Lista'}
+      </button>
+
+      <button onClick={handleExportarSolicitudes}>
+        Exportar Solicitudes a Excel
       </button>
 
       {view === 'form' ? (
@@ -197,45 +218,45 @@ function GestionSolicitud() {
         </form>
       ) : (
         <div className="table-container">
-        <table className="solicitudes-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Descripción</th>
-              <th>Teléfono</th>
-              <th>Departamento</th>
-              <th>Ciudad</th>
-              <th>Barrio</th>
-              <th>Dirección</th>
-              <th>Estado</th>
-              <th>Fecha Creación</th>
-              <th>Última Actualización</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {solicitudes.map((solicitud) => (
-              <tr key={solicitud._id}>
-                <td>{solicitud._id}</td>
-                <td>{solicitud.descripcion}</td>
-                <td>{solicitud.telefono}</td>
-                <td>{solicitud.departamento}</td>
-                <td>{solicitud.ciudad}</td>
-                <td>{solicitud.barrio}</td>
-                <td>{solicitud.direccion}</td>
-                <td>{solicitud.estado}</td>
-                <td>{new Date(solicitud.fecha_creacion).toLocaleString()}</td>
-                <td>{new Date(solicitud.updatedAt).toLocaleString()}</td>
-                <td>
-                  <button onClick={() => handleVerImagen(solicitud.imagen)}>Ver Imagen</button>
-                  <button onClick={() => handleShowUserData(solicitud.usuario_id)}>Ver datos del usuario</button>
-                  <button onClick={() => handleEliminarSolicitud(solicitud._id)}>Eliminar</button>
-                  <button onClick={() => handleEditarSolicitud(solicitud)}>Editar</button>
-                </td>
+          <table className="solicitudes-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Descripción</th>
+                <th>Teléfono</th>
+                <th>Departamento</th>
+                <th>Ciudad</th>
+                <th>Barrio</th>
+                <th>Dirección</th>
+                <th>Estado</th>
+                <th>Fecha Creación</th>
+                <th>Última Actualización</th>
+                <th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {solicitudes.map((solicitud) => (
+                <tr key={solicitud._id}>
+                  <td>{solicitud._id}</td>
+                  <td>{solicitud.descripcion}</td>
+                  <td>{solicitud.telefono}</td>
+                  <td>{solicitud.departamento}</td>
+                  <td>{solicitud.ciudad}</td>
+                  <td>{solicitud.barrio}</td>
+                  <td>{solicitud.direccion}</td>
+                  <td>{solicitud.estado}</td>
+                  <td>{new Date(solicitud.fecha_creacion).toLocaleString()}</td>
+                  <td>{new Date(solicitud.updatedAt).toLocaleString()}</td>
+                  <td>
+                    <button onClick={() => handleVerImagen(solicitud.imagen)}>Ver Imagen</button>
+                    <button onClick={() => handleShowUserData(solicitud.usuario_id)}>Ver datos del usuario</button>
+                    <button onClick={() => handleEliminarSolicitud(solicitud._id)}>Eliminar</button>
+                    <button onClick={() => handleEditarSolicitud(solicitud)}>Editar</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
