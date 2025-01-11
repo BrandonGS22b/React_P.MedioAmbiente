@@ -2,9 +2,9 @@
 
 .gestion-tecnico {
     font-family: Arial, sans-serif;
-    padding: 20px;
+    padding:60px;
     background-color: #f8f9fa;
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   
@@ -67,7 +67,7 @@
   button {
     display: block;
     margin: 10px auto;
-    padding: 10px 15px;
+    padding: 10px 80px;
     font-size: 14px;
     color: #fff;
     background-color: #28a745;
@@ -86,4 +86,38 @@
     color: #6c757d;
     margin-top: 20px;
   }
+  .responsive-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1200px;
+     
+  }
+  
+  .responsive-table th,
+  .responsive-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  .responsive-table th {
+    background-color: #f4f4f4;
+  }
+  
+  .responsive-table img {
+    display: block;
+    margin: auto;
+  }
+  
+  @media (max-width: 768px) {
+    .responsive-table th,
+    .responsive-table td {
+      font-size: 10px;
+    }
+  }
+  
+  
+  
+  
+  
   
