@@ -3,23 +3,25 @@ import Swal from 'sweetalert2';
 import GestionTecnicoService from '../../service/GestionTecnicos.service';
 import SolicitudService from '../../service/GestionSolicitud.service';
 import useAuth from '../../context/useAuth';
-
+import '../../styles/gestiontecnico.css';
 function GestionTecnico() {
   const [asignaciones, setAsignaciones] = useState([]);
   const [evidencias, setEvidencias] = useState({});
   const [comentarios, setComentarios] = useState({});
   const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(null);
 
   const { user } = useAuth();
   const tecnicoId = user && user._id ? user._id : null;
 
-  const fetchEstadoSolicitud = async (solicitudId) => {
+  const fetchSolicitudes = async () => {
     try {
-      const solicitud = await SolicitudService.obtenerSolicitudPorId(solicitudId);
-      return solicitud?.data?.estado || null;
+      const response = await SolicitudService.obtenerSolicitudes();
+      return response.data;
     } catch (error) {
-      console.error('Error al obtener el estado de la solicitud:', error);
-      return null;
+      console.error('Error al obtener las solicitudes:', error);
+      setError('Error al cargar las solicitudes.');
+      return [];
     }
   };
 
@@ -33,14 +35,24 @@ function GestionTecnico() {
         }
 
         const response = await GestionTecnicoService.obtenerAsignacionesPorTecnico(tecnicoId);
-        const asignacionesEnProceso = await Promise.all(
-          response.map(async (asignacion) => {
-            const estadoActualizado = await fetchEstadoSolicitud(asignacion.solicitudId);
-            return { ...asignacion, estado: estadoActualizado };
-          })
-        );
+        const solicitudes = await fetchSolicitudes();
 
-        const asignacionesFiltradas = asignacionesEnProceso.filter(
+        const asignacionesConDetalles = response.map((asignacion) => {
+          const solicitud = solicitudes.find((sol) => sol._id === asignacion.solicitudId) || {};
+          return {
+            ...asignacion,
+            descripcion: solicitud.descripcion || 'N/A',
+            barrio: solicitud.barrio || 'N/A',
+            ciudad: solicitud.ciudad || 'N/A',
+            departamento: solicitud.departamento || 'N/A',
+            estado: solicitud.estado || 'N/A',
+            fecha_creacion: solicitud.fecha_creacion || null,
+            updatedAt: solicitud.updatedAt || null,
+            imagen: solicitud.imagen || null,
+          };
+        });
+
+        const asignacionesFiltradas = asignacionesConDetalles.filter(
           (asignacion) => asignacion.estado === 'En proceso'
         );
 
@@ -97,7 +109,7 @@ function GestionTecnico() {
 
       await SolicitudService.actualizarSolicitud(asignacion.solicitudId, { estado: 'Solucionado' });
 
-      const nuevoEstado = await fetchEstadoSolicitud(asignacion.solicitudId);
+      const nuevoEstado = 'Solucionado';
       setAsignaciones((prevAsignaciones) =>
         prevAsignaciones.map((a) =>
           a._id === asignacionId ? { ...a, estado: nuevoEstado } : a
@@ -144,8 +156,8 @@ function GestionTecnico() {
                 <td>{asignacion.ciudad}</td>
                 <td>{asignacion.departamento}</td>
                 <td>{asignacion.estado}</td>
-                <td>{new Date(asignacion.fechaCreacion).toLocaleString()}</td>
-                <td>{new Date(asignacion.ultimaModificacion).toLocaleString()}</td>
+                <td>{asignacion.fecha_creacion ? new Date(asignacion.fecha_creacion).toLocaleString() : 'N/A'}</td>
+                <td>{asignacion.updatedAt ? new Date(asignacion.updatedAt).toLocaleString() : 'N/A'}</td>
                 <td>
                   {asignacion.imagen ? (
                     <img src={asignacion.imagen} alt="Evidencia" style={{ width: '50px' }} />
