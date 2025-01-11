@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import SolicitudService from '../../service/GestionSolicitud.service';
 import "./../../styles/gestionsolicitud.css";
 import authService from '../../service/auth.service';
+import Swal from 'sweetalert2';  // Importa SweetAlert2
 
 function GestionSolicitud() {
   const [solicitudes, setSolicitudes] = useState([]);
@@ -56,11 +57,10 @@ function GestionSolicitud() {
   const handleExportarSolicitudes = async () => {
     try {
       const response = await SolicitudService.exportarSolicitudes();
-      // Crear un enlace temporal para descargar el archivo
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'solicitudes.xlsx'); // Nombre del archivo de descarga
+      link.setAttribute('download', 'solicitudes.xlsx'); 
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -143,13 +143,29 @@ function GestionSolicitud() {
   };
 
   const handleEliminarSolicitud = async (id) => {
-    try {
-      await SolicitudService.eliminarSolicitud(id);
-      setSolicitudes(solicitudes.filter(solicitud => solicitud._id !== id));
-    } catch (error) {
-      setError('Error al eliminar la solicitud.');
-      console.error('Error al eliminar la solicitud:', error);
-    }
+    // Confirmación con SweetAlert antes de eliminar
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta solicitud se eliminará permanentemente.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await SolicitudService.eliminarSolicitud(id);
+          setSolicitudes(solicitudes.filter(solicitud => solicitud._id !== id));
+          Swal.fire('Eliminado!', 'La solicitud ha sido eliminada.', 'success');
+        } catch (error) {
+          setError('Error al eliminar la solicitud.');
+          console.error('Error al eliminar la solicitud:', error);
+          Swal.fire('Error!', 'No se pudo eliminar la solicitud.', 'error');
+        }
+      }
+    });
   };
 
   const handleViewChange = (newView) => {
@@ -270,8 +286,8 @@ function GestionSolicitud() {
                 <p><strong>ID:</strong> {selectedUserData._id}</p>
                 <p><strong>Nombre:</strong> {selectedUserData.name}</p>
                 <p><strong>Email:</strong> {selectedUserData.email}</p>
-                <p><strong>Teléfono:</strong> {selectedUserData.telefono}</p>
-                <p><strong>Dirección:</strong> {selectedUserData.direccion}</p>
+                <p><strong>Rol:</strong> {selectedUserData.role}</p>
+                <p><strong>Fecha de creación:</strong> {new Date(selectedUserData.createdAt).toLocaleString()}</p>
               </div>
             )}
           </div>

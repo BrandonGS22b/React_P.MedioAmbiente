@@ -4,6 +4,7 @@ import authService from "../../service/auth.service";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faBan, faListAlt, faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify"; // For feedback
+import Swal from "sweetalert2"; // Importar SweetAlert
 import "../../styles/usuario.css";
 
 function Usuarios() {
@@ -31,8 +32,7 @@ function Usuarios() {
       setLoading(true);
       try {
         const { users } = await authService.getUsuarios();
-        
-        console.log(users); // Verifica la respuesta del servidor
+        console.log("Usuarios recibidos:", users);  // Verifica que los usuarios tienen el campo 'id'
         setUsuarios(Array.isArray(users) ? users : []);
       } catch (error) {
         toast.error("Error al obtener usuarios.");
@@ -40,7 +40,7 @@ function Usuarios() {
         setLoading(false);
       }
     };
-
+  
     if (user) {
       fetchUsuarios();
     }
@@ -132,8 +132,28 @@ function Usuarios() {
   };
 
   const handleVerUsuario = (id) => {
-    const usuario = usuarios.find((u) => u._id === id);
-    alert(`Detalles del usuario:\n${JSON.stringify(usuario, null, 2)}`);
+    console.log("ID recibido:", id);  // Verifica si el id recibido es correcto
+    const usuario = usuarios.find((u) => u.id === id);  // Usamos "id" en lugar de "_id"
+  
+    if (usuario) {
+      console.log("Usuario encontrado:", usuario);
+      Swal.fire({
+        title: `Detalles del Usuario: ${usuario.name}`,
+        html: `
+          <strong>Email:</strong> ${usuario.email} <br>
+          <strong>Rol:</strong> ${usuario.role} <br>
+          <strong>Dirección:</strong> ${usuario.direccion} <br>
+          <strong>Teléfono:</strong> ${usuario.telefono} <br>
+          <strong>Tipo de Documento:</strong> ${usuario.tipodedocumento} <br>
+          <strong>Documento:</strong> ${usuario.documento}
+        `,
+        icon: 'info',
+        confirmButtonText: 'Cerrar'
+      });
+    } else {
+      toast.error("Usuario no encontrado.");
+      console.error("Usuario no encontrado con ID:", id);
+    }
   };
 
   const handleCambiarEstado = async (userId, estadoActual) => {
@@ -146,15 +166,11 @@ function Usuarios() {
         await authService.enableUser(userId);
       }
   
-      // Actualiza el estado del usuario directamente en la lista sin recargar
       setUsuarios((prev) =>
         prev.map((usuario) =>
           usuario.id === userId ? { ...usuario, estado: nuevoEstado } : usuario
         )
       );
-  
-      // Puedes descomentar la siguiente línea si quieres hacer un refresco explícito
-      // fetchUsuarios(); 
   
       toast.success(`Usuario ${nuevoEstado === "activo" ? "activado" : "desactivado"} correctamente.`);
     } catch (error) {
@@ -162,9 +178,7 @@ function Usuarios() {
       toast.error("No se pudo cambiar el estado del usuario.");
     }
   };
-  
-  
-  
+
   const filteredUsuarios = usuarios.filter((usuario) =>
     usuario.name.toLowerCase().includes(filtro.toLowerCase())
   );
@@ -286,7 +300,7 @@ function Usuarios() {
                 <td>{usuario.role}</td>
                 <td>{usuario.estado}</td>
                 <td>
-                  <button onClick={() => handleVerUsuario(usuario._id)} className="btn btn-info m-1">
+                  <button onClick={() => handleVerUsuario(usuario.id)} className="btn btn-info m-1">
                     <FontAwesomeIcon icon={faEye} />
                   </button>
                   <button

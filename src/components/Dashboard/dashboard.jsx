@@ -191,10 +191,10 @@ function Dashboard() {
       <nav className="navbar navbar-dark bg-light fixed-top">
         <div className="container-fluid d-flex align-items-center">
           <img
-            src="/logo.jpg"
+            src="/logo1.jpg"
             alt="Logo"
             className="me-4"
-            style={{ width: "100px", height: "100px" }}
+            style={{ width: "110px", height: "110px" }}
           />
           <span className="navbar-brand mb-0 h1">EcoApp</span>
           {user && (

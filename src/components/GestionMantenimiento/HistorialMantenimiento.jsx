@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import SolicitudService from '../../service/GestionSolicitud.service';
 import GestionTecnicoService from '../../service/GestionTecnicos.service';
 import authService from '../../service/auth.service';
+import Swal from 'sweetalert2';
 import './../../styles/gestionMantenimiendo.css';
 
 function HistorialMantenimiento() {
@@ -20,6 +21,7 @@ function HistorialMantenimiento() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -38,21 +40,23 @@ function HistorialMantenimiento() {
       setAsignaciones(asignacionesResponse);
       setTecnicos(tecnicosResponse);
 
-      const formattedHistorial = solicitudesResponse.data
-        .filter((solicitud) => ["Revisado", "En proceso", "Solucionado"].includes(solicitud.estado))
-        .map((solicitud) => {
-          const mantenimiento = asignacionesResponse.find((mant) => mant.solicitudId === solicitud._id);
-          const tecnicoAsignado = mantenimiento
-            ? tecnicosResponse.find((tecnico) => tecnico._id === mantenimiento.tecnicoId)?.name || 'No asignado'
-            : 'No asignado';
+  const formattedHistorial = solicitudesResponse.data
+  .filter((solicitud) => ["Revisado", "En proceso", "Solucionado"].includes(solicitud.estado))
+  .map((solicitud) => {
+    const mantenimiento = asignacionesResponse.find((mant) => mant.solicitudId === solicitud._id);
+    const tecnicoAsignado = mantenimiento
+      ? tecnicosResponse.find((tecnico) => tecnico._id === mantenimiento.tecnicoId)?.name || 'No asignado'
+      : 'No asignado';
 
-          return {
-            ...solicitud,
-            gastos: mantenimiento ? mantenimiento.gastos : 'N/A',
-            diasDuracion: mantenimiento ? mantenimiento.diasDuracion : 'N/A',
-            tecnico: tecnicoAsignado,
-          };
-        });
+    return {
+      ...solicitud,
+      gastos: mantenimiento ? mantenimiento.gastos : 'N/A',
+      diasDuracion: mantenimiento ? mantenimiento.diasDuracion : 'N/A',
+      tecnico: tecnicoAsignado,
+      fecha_creacion: new Date(solicitud.createdAt).toISOString(), // Garantizamos un formato válido
+      updatedAt: new Date(solicitud.updatedAt).toISOString(),
+    };
+  });
 
       setHistorial(formattedHistorial);
     } catch (error) {
@@ -81,7 +85,6 @@ function HistorialMantenimiento() {
 
   const handleSelectAsignacion = (asignacionId) => {
     const asignacion = asignaciones.find((item) => item._id === asignacionId);
-    console.log("Seleccionando asignación", asignacion);
     if (asignacion) {
       setSelectedAsignacionId(asignacion._id);
       setFormData({
@@ -106,7 +109,6 @@ function HistorialMantenimiento() {
       const nuevoEstado = "En proceso"; // Aquí puedes cambiar el estado como necesites
   
       if (!selectedAsignacionId) {
-        // Si no hay asignación, se crea una nueva asignación
         const asignacionData = {
           solicitudId: selectedSolicitudId,
           tecnicoId: formData.tecnicoAsignado,
@@ -114,10 +116,9 @@ function HistorialMantenimiento() {
           gastos: parseInt(formData.gastos, 10),
           diasDuracion: parseInt(formData.diasDuracion, 10),
         };
-        const imagenFile = null; // Si necesitas manejar imágenes, agrega la lógica para el archivo
+        const imagenFile = null;
         await GestionTecnicoService.crearAsignacion(asignacionData, imagenFile);
       } else {
-        // Si ya hay asignación, se actualiza la asignación con la carga de evidencia
         await GestionTecnicoService.cargarEvidencia(selectedAsignacionId, {
           tecnicoId: formData.tecnicoAsignado,
           descripcion: formData.descripcion,
@@ -126,24 +127,31 @@ function HistorialMantenimiento() {
         });
       }
   
-      // Actualizamos el estado de la solicitud
       await SolicitudService.actualizarSolicitud(selectedSolicitudId, { estado: nuevoEstado });
   
-      alert('Solicitud actualizada correctamente.');
+      Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: 'Solicitud actualizada correctamente.',
+      });
+
       resetForm();
       fetchData();
     } catch (error) {
-      alert('Error al actualizar la solicitud. Intenta de nuevo más tarde.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error al actualizar la solicitud. Intenta de nuevo más tarde.',
+      });
     }
   };
-  
+
   const handleSelectSolicitud = (solicitud) => {
     const asignacionEncontrada = asignaciones.find((item) => item.solicitudId === solicitud._id);
   
     setSelectedSolicitudId(solicitud._id);
   
     if (asignacionEncontrada) {
-      // Si ya tiene asignación, mostrar los datos para editar
       setSelectedAsignacionId(asignacionEncontrada._id);
       setFormData({
         descripcion: asignacionEncontrada.descripcion || '',
@@ -154,7 +162,6 @@ function HistorialMantenimiento() {
       });
       setIsEditing(true);
     } else {
-      // Si no tiene asignación, preparar para crear una nueva
       setSelectedAsignacionId(null);
       setFormData({
         descripcion: solicitud.descripcion || '',
@@ -170,11 +177,24 @@ function HistorialMantenimiento() {
   if (loading) return <div>Cargando...</div>;
   if (error) return <div>{error}</div>;
 
+  const filteredHistorial = historial.filter((solicitud) =>
+    solicitud.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    solicitud.tecnico.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="historial-mantenimiento">
+      
+      <input
+        type="text"
+        placeholder="Buscar por descripción o técnico..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="search-bar"
+      />
       {!isEditing ? (
         <>
-          <h1>Historial de Mantenimiento</h1>
+          
           <table className="historial-table">
             <thead>
               <tr>
@@ -184,12 +204,14 @@ function HistorialMantenimiento() {
                 <th>Técnico Asignado</th>
                 <th>Gastos</th>
                 <th>Días de Duración</th>
+                <th>Fecha de Creación</th>
+                <th>Última Actualización</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {historial.length > 0 ? (
-                historial.map((solicitud) => (
+              {filteredHistorial.length > 0 ? (
+                filteredHistorial.map((solicitud) => (
                   <tr key={solicitud._id}>
                     <td>{solicitud._id}</td>
                     <td>{solicitud.descripcion}</td>
@@ -197,6 +219,8 @@ function HistorialMantenimiento() {
                     <td>{solicitud.tecnico || "No asignado"}</td>
                     <td>{solicitud.gastos}</td>
                     <td>{solicitud.diasDuracion}</td>
+                    <td>{new Date(solicitud.fecha_creacion).toLocaleString()}</td>
+                    <td>{new Date(solicitud.updatedAt).toLocaleString()}</td>
                     <td>
                       <button onClick={() => handleSelectSolicitud(solicitud)}>
                         Seleccionar Solicitud
@@ -227,7 +251,7 @@ function HistorialMantenimiento() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7">No hay historial disponible</td>
+                  <td colSpan="9">No hay historial disponible</td>
                 </tr>
               )}
             </tbody>
@@ -278,20 +302,8 @@ function HistorialMantenimiento() {
               ))}
             </select>
 
-            <label>Estado</label>
-            <select
-              value={formData.estado}
-              onChange={(e) =>
-                setFormData({ ...formData, estado: e.target.value })
-              }
-            >
-              <option value="Revisado">Revisado</option>
-              <option value="En proceso">En proceso</option>
-              <option value="Solucionado">Solucionado</option>
-            </select>
-
             <button type="button" onClick={handleEditSolicitud}>
-              Guardar
+              Guardar Cambios
             </button>
             <button type="button" onClick={resetForm}>
               Cancelar

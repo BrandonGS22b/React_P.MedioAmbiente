@@ -52,7 +52,7 @@ const RecuperarPass = () => {
   return (
     <div className="login-container">
       <div className="logo-container">
-        <img src="/logo.png" alt="Logo" className="logo" />
+        <img src="/logo1.jpg" alt="Logo" className="logo" />
       </div>
       <form onSubmit={handleRecovery} className="login-form">
         <h2>Recuperar Contraseña</h2>
