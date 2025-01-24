@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import authService from '../../service/auth.service'; // Asegúrate de importar el authService
-import useAuth from '../../context/useAuth'; // Importa el contexto de autenticación
-import '../../styles/login.css'; // Añadimos un archivo CSS para mejorar el diseño
+import authService from '../../service/auth.service'; // Servicio de autenticación
+import useAuth from '../../context/useAuth'; // Contexto de autenticación
+import '../../styles/login.css'; // Estilo
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -10,14 +10,20 @@ const LoginForm = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth(); // Usa el contexto de autenticación
+  const { login, user } = useAuth(); // Incluye `user` del contexto
+
+  useEffect(() => {
+    // Redirige al dashboard si el usuario ya está autenticado
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true); // Inicia la carga
+    setLoading(true);
     try {
-      const response = await authService.login(email, password); // Utiliza el servicio para iniciar sesión
-
+      const response = await authService.login(email, password);
       if (response && response.token) {
         if (response.user.estado && response.user.estado.trim() !== 'activo') {
           setError('El usuario no está activo. Por favor, contacta al administrador.');
@@ -35,8 +41,7 @@ const LoginForm = () => {
 
         localStorage.setItem('name', response);
         localStorage.setItem('user', JSON.stringify(response.user));
-
-        navigate('/dashboard'); // Navega a la página de inicio
+        navigate('/dashboard'); // Redirige al dashboard
       } else {
         setError('Error al iniciar sesión. Por favor, verifica tus credenciales.');
       }
@@ -44,12 +49,12 @@ const LoginForm = () => {
       console.error('Login error:', err);
       setError('Error al iniciar sesión. Por favor, intenta de nuevo.');
     } finally {
-      setLoading(false); // Detiene la carga
+      setLoading(false);
     }
   };
 
   const handleForgotPassword = () => {
-    navigate('/RecuperarPass'); // Redirige a la página de recuperación de contraseña
+    navigate('/RecuperarPass');
   };
 
   return (
@@ -77,7 +82,6 @@ const LoginForm = () => {
           {loading ? 'Cargando...' : 'Iniciar sesión'}
         </button>
         {error && <p className="error-message">{error}</p>}
-
         <button
           type="button"
           onClick={handleForgotPassword}
