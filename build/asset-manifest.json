@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.f32873cd.css",
+    "main.js": "/static/js/main.d80771cd.js",
+    "static/js/488.50442ee8.chunk.js": "/static/js/488.50442ee8.chunk.js",
+    "static/media/fondodegradado.jpg": "/static/media/fondodegradado.6e1c9404507691b5d418.jpg",
+    "index.html": "/index.html",
+    "main.f32873cd.css.map": "/static/css/main.f32873cd.css.map",
+    "main.d80771cd.js.map": "/static/js/main.d80771cd.js.map",
+    "488.50442ee8.chunk.js.map": "/static/js/488.50442ee8.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f32873cd.css",
+    "static/js/main.d80771cd.js"
+  ]
+}
