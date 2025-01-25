@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "proyecto-f7ec6"
-  }
+    "default": "proyecto-f7ec6",
+    "dev": "proyecto-f7ec6"
+  },
+  "targets": {},
+  "etags": {}
 }
