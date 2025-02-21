@@ -148,25 +148,44 @@ function Dashboard() {
       case "auxiliar":
         return (
           <>
-          <li className="list-group-item">
-            <button
-              onClick={() => handleContentChange(<Home />)}
-              className="btn btn-light w-100 text-start"
-              aria-label="Inicio"
-            >
-              <FontAwesomeIcon icon={faHome} /> Inicio
-            </button>
-          </li>
+           <li className="list-group-item">
+              <button
+                onClick={() => handleContentChange(<Home />)}
+                className="btn btn-light w-100 text-start"
+                aria-label="Inicio"
+              >
+                <FontAwesomeIcon icon={faHome} /> Inicio
+              </button>
+            </li>
           
           <li className="list-group-item">
-            <button
-              onClick={() => handleContentChange(<HistorialSolicitud />)}
-              className="btn btn-light w-100 text-start"
-              aria-label="Historial Solicitudes"
-            >
-              <FontAwesomeIcon icon={faFileAlt} /> Historial Solicitudes
-            </button>
-          </li>
+              <button
+                onClick={() => handleContentChange(<GestionSolicitud />)}
+                className="btn btn-light w-100 text-start"
+                aria-label="Gestión Solicitudes"
+              >
+                <FontAwesomeIcon icon={faFileAlt} /> Gestión Solicitudes
+              </button>
+            </li>
+            <li className="list-group-item">
+              <button
+                onClick={() => handleContentChange(<GestionMantenimiento />)}
+                className="btn btn-light w-100 text-start"
+                aria-label="Gestión Mantenimiento"
+              >
+                <FontAwesomeIcon icon={faFileAlt} /> Gestión Mantenimiento
+              </button>
+            </li>
+            <li className="list-group-item">
+              <button
+                onClick={() => handleContentChange(<HistorialSolicitud />)}
+                className="btn btn-light w-100 text-start"
+                aria-label="Historial Solicitudes"
+              >
+                <FontAwesomeIcon icon={faFileAlt} /> Historial Solicitudes
+              </button>
+            </li>
+
           </>
         );
 
